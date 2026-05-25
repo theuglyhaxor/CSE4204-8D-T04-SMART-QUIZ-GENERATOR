@@ -322,9 +322,9 @@ This university project was created by team **CSE4204-8D-T04**.
 
 ### Team Members
 
-| No. | Name                | Student ID  | Email                                                       |
-| --- | ------------------- | ----------- | ----------------------------------------------------------- |
-| 1   | MD Rohan            | 11220320958 | [therohansec@gmail.com](mailto:therohansec@gmail.com)       |
-| 2   | Sharmin Nahar Tumpa | 11220320962 | [tumpa540264@gmail.com](mailto:tumpa540264@gmail.com)       |
-| 3   | Pial Tarofder       | 11220320965 | [pialtarofder55@gmail.com](mailto:pialtarofder55@gmail.com) |
-| 4   | Sanjana Athoy       | 11220320953 | [sanjanaathoy55@gmail.com](mailto:sanjanaathoy55@gmail.com) |
+| No. | Name | Student ID | Role / Responsibility | Email |
+|---|---|---|---|---|
+| 1 | MD Rohan | 11220320958 | Backend Developer, Full Stack Development | therohansec@gmail.com |
+| 2 | Sharmin Nahar Tumpa | 11220320962 | AI Integration | tumpa540264@gmail.com |
+| 3 | Pial Tarofdar | 11220320965 | Frontend Developer | pialtarofdar55@gmail.com |
+| 4 | Sanjana Athoy | 11220320953 | Overall Technical Help | sanjanaathoy55@gmail.com |
