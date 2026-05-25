@@ -54,6 +54,13 @@ The remaining gaps are:
 - PyMySQL
 - MySQL or MariaDB on XAMPP
 
+## Frontend (Upcoming)
+- React.js
+## AI integration (Upcoming)
+- Gemini AI
+## Deployment (Upcoming)
+- Railway/Render
+
 ### Data model summary
 
 - **Quiz**: quiz metadata such as title, difficulty, duration, and active status.
@@ -308,3 +315,16 @@ See [docs/AI_INTEGRATION_GUIDE.md](docs/AI_INTEGRATION_GUIDE.md) for a full impl
 - The backend currently uses `AllowAny` for API access, so authentication is still missing.
 - Use the sample SQL script at the project root to seed a local testing database.
 - The current backend is designed for local development and should be hardened before production deployment.
+
+## Development Team Details
+
+This university project was created by team **CSE4204-8D-T04**.
+
+### Team Members
+
+| No. | Name                | Student ID  | Email                                                       |
+| --- | ------------------- | ----------- | ----------------------------------------------------------- |
+| 1   | MD Rohan            | 11220320958 | [therohansec@gmail.com](mailto:therohansec@gmail.com)       |
+| 2   | Sharmin Nahar Tumpa | 11220320962 | [tumpa540264@gmail.com](mailto:tumpa540264@gmail.com)       |
+| 3   | Pial Tarofder       | 11220320965 | [pialtarofder55@gmail.com](mailto:pialtarofder55@gmail.com) |
+| 4   | Sanjana Athoy       | 11220320953 | [sanjanaathoy55@gmail.com](mailto:sanjanaathoy55@gmail.com) |
