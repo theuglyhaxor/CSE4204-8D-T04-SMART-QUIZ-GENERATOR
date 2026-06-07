@@ -1,52 +1,466 @@
 # SMART QUIZ GENERATOR
 
-**SMART QUIZ GENERATOR** is a backend-first Django application for creating, managing, and scoring quizzes. It also includes a Gemini-based quiz generation flow. 
+**CSE4204-8D-T04** | **Batch 8D** | **Team 04**
+
+**SMART QUIZ GENERATOR** is an intelligent, role-based quiz management system that streamlines the process of creating, administering, and evaluating quizzes. The system leverages AI technology (Google Gemini) to automatically generate quiz questions from various document formats while providing a secure, user-friendly platform for educators and students.
 
 ---
 
-## What this backend does
+## 📋 Table of Contents
 
-This backend is responsible for the server-side logic of the quiz system.
-
-### Current capabilities
-
-- Create, list, retrieve, update, and delete quizzes.
-- Create and retrieve questions for a quiz.
-- Expose a student-safe question endpoint that does **not** include correct answers.
-- Score quiz submissions and store attempt history.
-- Generate quiz questions by calling Gemini through the backend.
-- Provide JSON APIs for a frontend, mobile app, or another service.
-- Parse uploaded PDF, TXT, MD, CSV, and JSON files through a teacher-only endpoint.
-
-### Current auth and access control
-
-- Token-based authentication is enabled for protected endpoints.
-- Teacher and student roles are enforced through Django groups.
-- Teacher endpoints are restricted to teacher accounts.
-- Student endpoints are restricted to student accounts.
-- File upload / PDF parsing is implemented for teacher accounts.
-- Production-grade queueing / background jobs are not implemented yet.
-- No dedicated frontend inside this repository.
-
-### What this backend does **not** do yet
-
-This section is here to make the current status explicit. The backend **already supports**:
-
-- file upload / PDF parsing
-- teacher and student roles
-- token-based authentication
-
-The remaining gaps are:
-
-- production-grade background jobs or queueing
-- automatic document-to-quiz generation beyond the existing document parsing endpoint
-- a bundled frontend inside this repository
+- [Project Overview](#project-overview)
+- [Team Information](#team-information)
+- [Key Features](#key-features)
+- [Technology Stack](#technology-stack)
+- [Repository Structure](#repository-structure)
+- [Getting Started](#getting-started)
+- [API Documentation](#api-documentation)
+- [Database Schema](#database-schema)
+- [Deployment](#deployment)
 
 ---
 
-## Backend architecture
+## Project Overview
 
-### Technology stack
+### Objectives
+
+- Enable efficient quiz creation through both manual input and AI-powered automatic generation from documents
+- Implement secure role-based access control with distinct teacher and student workflows
+- Provide intelligent question generation using Gemini AI
+- Facilitate secure student assessment with real-time scoring and tracking
+- Support multiple file formats (PDF, TXT, MD, CSV, JSON) for document-based question generation
+- Deliver comprehensive REST API endpoints for seamless third-party integration
+
+### Problem Statement
+
+Traditional quiz creation and administration processes are time-consuming and resource-intensive. Educators spend significant time manually creating questions and managing student assessments. Without proper centralized platform and role-based access control, institutions lack secure mechanisms to manage the complete quiz lifecycle with intelligent automation.
+
+### Key Benefits
+
+✅ **Automated Question Generation** - Leverage AI to extract questions from documents  
+✅ **Role-Based Access Control** - Secure separation between teacher and student workflows  
+✅ **Multi-Format Support** - Parse PDF, TXT, Markdown, CSV, and JSON files  
+✅ **Real-Time Scoring** - Instant feedback and score calculation  
+✅ **API-First Design** - Easy integration with frontend apps and third-party services  
+✅ **Secure Authentication** - Token-based auth with encrypted credentials  
+
+---
+
+## Team Information
+
+| Role | Name | ID | Responsibilities |
+|------|------|-----|------------------|
+| Team Lead | [Your Name] | [ID] | Project coordination, overall delivery |
+| Backend Lead | [Your Name] | [ID] | Backend development, API design |
+| Frontend Lead | [Your Name] | [ID] | Frontend development, UI/UX |
+| Database Admin | [Your Name] | [ID] | Database design, optimization |
+| QA Lead | [Your Name] | [ID] | Testing, quality assurance |
+
+**Update the table above with your actual team members.**
+
+---
+
+## Key Features
+
+### For Teachers
+
+- ✅ Create, update, and delete quizzes
+- ✅ Add questions with multiple-choice options
+- ✅ Generate questions automatically from uploaded documents
+- ✅ Set quiz difficulty levels and time duration
+- ✅ Activate/deactivate quizzes
+- ✅ Review all student submissions and attempt history
+- ✅ Analyze student performance data
+
+### For Students
+
+- ✅ View list of active quizzes
+- ✅ Take quizzes without seeing correct answers
+- ✅ Submit responses with instant scoring
+- ✅ View scores and performance feedback
+- ✅ Track progress across multiple quizzes
+- ✅ Review explanations for correct answers
+
+### System Features
+
+- ✅ AI-powered quiz generation from documents
+- ✅ Support for PDF, TXT, Markdown, CSV, JSON formats
+- ✅ Gemini API integration
+- ✅ Token-based authentication and authorization
+- ✅ RESTful API endpoints with comprehensive documentation
+- ✅ Role-based access control (Teacher/Student)
+- ✅ Real-time quiz scoring and result calculation
+- ✅ Complete attempt history and audit trail
+
+---
+
+## Technology Stack
+
+### Backend
+
+| Component | Technology |
+|-----------|-----------|
+| Framework | Django 3.2+ |
+| API | Django REST Framework (DRF) |
+| Authentication | Django REST Framework Token |
+| Database | MySQL 5.7+ / MariaDB 10.3+ |
+| Language | Python 3.9+ |
+| AI Integration | Google Gemini API |
+| File Processing | PyPDF2, python-docx, csv, json |
+
+### Frontend (To Be Developed Separately)
+
+| Component | Recommendation |
+|-----------|-----------------|
+| Framework | React, Vue, or Angular |
+| HTTP Client | Axios or Fetch API |
+| State Management | Redux, Vuex, or Context API |
+| UI Framework | Material-UI, Bootstrap, or Tailwind CSS |
+
+### DevOps & Deployment
+
+- **Version Control:** Git/GitHub
+- **Container:** Docker
+- **Web Server:** Gunicorn, Nginx
+- **Task Queue:** Celery (future enhancement)
+- **Monitoring:** Django Debug Toolbar, logging
+
+---
+
+## Repository Structure
+
+```
+CSE4204-8D-T04-SMART-QUIZ-GENERATOR/
+├── README.md                                    # Project overview
+├── sample_data.sql                              # Sample database seed script
+├── CSE4204-8D-T04_SRS.md                       # Software Requirements Specification
+├── backend/
+│   ├── manage.py                                # Django management script
+│   ├── requirements.txt                         # Python dependencies
+│   ├── quiz_api/                                # Main app
+│   │   ├── __init__.py
+│   │   ├── admin.py                             # Django admin configuration
+│   │   ├── apps.py                              # App configuration
+│   │   ├── models.py                            # Database models (Quiz, Question, QuizAttempt)
+│   │   ├── permissions.py                       # Custom permission classes
+│   │   ├── serializers.py                       # DRF serializers
+│   │   ├── services.py                          # Business logic (AI generation, parsing)
+│   │   ├── tests.py                             # Unit tests
+│   │   ├── urls.py                              # URL routing
+│   │   ├── views.py                             # API endpoints
+│   │   └── migrations/                          # Database migrations
+│   │       ├── __init__.py
+│   │       ├── 0001_initial.py                  # Initial schema
+│   │       └── 0002_create_roles.py             # Role setup
+│   └── smart_quiz_backend/
+│       ├── __init__.py
+│       ├── asgi.py                              # ASGI configuration
+│       ├── settings.py                          # Django settings
+│       ├── urls.py                              # Global URL configuration
+│       └── wsgi.py                              # WSGI configuration
+├── docs/
+│   ├── AI_INTEGRATION_GUIDE.md                  # Gemini API integration guide
+│   ├── BACKEND_API_REFERENCE.md                 # Complete API documentation
+│   ├── DATABASE_ARCHITECTURE.md                 # Database schema details
+│   └── FRONTEND_DEVELOPER_GUIDE.md              # Frontend integration guide
+└── .gitignore                                   # Git ignore rules
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.9+
+- MySQL 5.7+ or MariaDB 10.3+
+- Git
+- pip (Python package manager)
+
+### Local Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/YOUR_ORG/CSE4204-8D-T04-SMART-QUIZ-GENERATOR.git
+   cd CSE4204-8D-T04-SMART-QUIZ-GENERATOR
+   ```
+
+2. **Set up Python virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment variables:**
+   Create a `.env` file in the `backend/` directory:
+   ```
+   DEBUG=True
+   SECRET_KEY=your-secret-key-here
+   DATABASE_NAME=smart_quiz_db
+   DATABASE_USER=root
+   DATABASE_PASSWORD=your-password
+   DATABASE_HOST=localhost
+   DATABASE_PORT=3306
+   GEMINI_API_KEY=your-gemini-api-key
+   ```
+
+5. **Run migrations:**
+   ```bash
+   python manage.py migrate
+   ```
+
+6. **Create superuser:**
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+7. **Load sample data (optional):**
+   ```bash
+   mysql -u root -p smart_quiz_db < ../sample_data.sql
+   ```
+
+8. **Start the development server:**
+   ```bash
+   python manage.py runserver
+   ```
+
+   The API will be available at `http://localhost:8000/api/`
+
+### Running Tests
+
+```bash
+python manage.py test quiz_api
+```
+
+---
+
+## API Documentation
+
+### Base URL
+```
+http://localhost:8000/api/
+```
+
+### Authentication
+
+All protected endpoints require a token in the Authorization header:
+```
+Authorization: Token YOUR_AUTH_TOKEN
+```
+
+### Key Endpoints
+
+#### Authentication
+- `POST /auth/register/` - Register new user
+- `POST /auth/login/` - Login and get token
+- `POST /auth/logout/` - Logout and invalidate token
+
+#### Quizzes (Teacher)
+- `GET /quizzes/` - List all quizzes
+- `POST /quizzes/` - Create new quiz
+- `GET /quizzes/{id}/` - Retrieve quiz details
+- `PUT /quizzes/{id}/` - Update quiz
+- `DELETE /quizzes/{id}/` - Delete quiz
+
+#### Questions (Teacher)
+- `GET /quizzes/{quiz_id}/questions/` - List questions
+- `POST /quizzes/{quiz_id}/questions/` - Add question
+- `PUT /quizzes/{quiz_id}/questions/{id}/` - Update question
+- `DELETE /quizzes/{quiz_id}/questions/{id}/` - Delete question
+
+#### AI Question Generation
+- `POST /quizzes/{quiz_id}/generate-questions/` - Generate from document
+
+#### Quiz Taking (Student)
+- `GET /quizzes/{id}/questions-safe/` - Get questions (without answers)
+- `POST /quizzes/{id}/submit/` - Submit quiz attempt
+
+#### Attempts & Scoring
+- `GET /attempts/` - List all attempts (with filtering)
+- `GET /attempts/{id}/` - View attempt details
+
+**For complete API documentation, see [BACKEND_API_REFERENCE.md](docs/BACKEND_API_REFERENCE.md)**
+
+---
+
+## Database Schema
+
+### Core Tables
+
+**quiz_api_quiz**
+- Stores quiz metadata (title, description, difficulty, duration, active status, timestamps)
+
+**quiz_api_question**
+- Stores questions linked to quizzes (prompt, options A-D, correct answer, explanation, order)
+
+**quiz_api_quizattempt**
+- Stores student submissions (student name, responses JSON, score, total, timestamp)
+
+**auth_user**
+- Django's user authentication table
+
+**authtoken_token**
+- Token-based authentication
+
+**For detailed schema, see [DATABASE_ARCHITECTURE.md](docs/DATABASE_ARCHITECTURE.md)**
+
+---
+
+## Deployment
+
+### Production Setup
+
+1. **Set DEBUG=False in settings**
+2. **Configure environment variables**
+3. **Use Gunicorn as application server**
+4. **Set up Nginx as reverse proxy**
+5. **Enable HTTPS with SSL certificates**
+6. **Configure database backups**
+7. **Set up monitoring and logging**
+
+### Docker Deployment (Optional)
+
+```dockerfile
+# Dockerfile
+FROM python:3.9
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["gunicorn", "smart_quiz_backend.wsgi:application", "--bind", "0.0.0.0:8000"]
+```
+
+---
+
+## Documentation
+
+-  **[Software Requirements Specification (SRS)](CSE4204-8D-T04_SRS.md)** - Complete requirements document
+-  **[API Reference](docs/BACKEND_API_REFERENCE.md)** - Detailed API documentation
+-  **[Database Architecture](docs/DATABASE_ARCHITECTURE.md)** - Schema and relationships
+-  **[AI Integration Guide](docs/AI_INTEGRATION_GUIDE.md)** - Gemini API setup
+-  **[Frontend Developer Guide](docs/FRONTEND_DEVELOPER_GUIDE.md)** - Integration instructions
+
+---
+
+##  System Diagrams
+
+###  Quick Links to All Diagrams
+
+All diagrams are in the **`/diagrams/`** folder. **[View Diagrams Folder →](diagrams/)**
+
+| Diagram | Description | Use Case |
+|---------|-------------|----------|
+|  [Quick Overview](diagrams/00-ARCHITECTURE-OVERVIEW.md) | 5-layer system architecture | Start here! Quick understanding |
+|  [Use Case](diagrams/CSE4204-8D-T04_USE_CASE_DIAGRAM.md) | 3 actors, 15 use cases | What the system does |
+|  [ER Diagram](diagrams/CSE4204-8D-T04_ER-DIAGRAM.md) | 7 entities, relationships | Database schema |
+|  [Architecture](diagrams/CSE4204-8D-T04_ARCHITECTURE-DIAGRAM.md) | 5 layers, 10+ services | Complete system design |
+
+** [→ Open Diagrams Folder](diagrams/)** to view and read all diagrams with detailed explanations.
+
+### Quick Architecture Overview
+
+```mermaid
+graph TB
+    subgraph Frontend["🖥️ FRONTEND LAYER"]
+        WEB["Web Browser<br/>React/Vue/Angular"]
+    end
+    
+    subgraph Gateway["🔒 API GATEWAY"]
+        LB["Nginx<br/>Load Balancer<br/>HTTPS Termination"]
+    end
+    
+    subgraph AppLayer["⚙️ APPLICATION LAYER"]
+        AUTH["🔐 Authentication<br/>Token-Based"]
+        QUIZ["📝 Quiz Service<br/>CRUD Operations"]
+        QUESTION["❓ Question Service<br/>Management"]
+        SCORING["⭐ Scoring Service<br/>Calculate Scores"]
+        PARSER["📄 Document Parser<br/>PDF/TXT/MD/CSV/JSON"]
+        AI["🤖 AI Client<br/>Gemini Integration"]
+    end
+    
+    subgraph Data["💾 DATA LAYER"]
+        DB[("🗄️ MySQL/MariaDB<br/>Primary Database")]
+        CACHE[("⚡ Redis<br/>Optional Cache")]
+    end
+    
+    subgraph External["☁️ EXTERNAL SERVICES"]
+        GEMINI["🌟 Google Gemini API<br/>AI Question Generation"]
+    end
+    
+    WEB -->|HTTPS/REST API| LB
+    
+    LB -->|Route| AUTH
+    LB -->|Route| QUIZ
+    LB -->|Route| QUESTION
+    LB -->|Route| SCORING
+    LB -->|Route| PARSER
+    LB -->|Route| AI
+    
+    AUTH -->|Verify| DB
+    QUIZ -->|Read/Write| DB
+    QUESTION -->|Read/Write| DB
+    SCORING -->|Update| DB
+    PARSER -->|Upload| DB
+    AI -->|Call API| GEMINI
+    GEMINI -->|Return Questions| AI
+    
+    AUTH -->|Cache| CACHE
+    QUIZ -->|Cache| CACHE
+    QUESTION -->|Cache| CACHE
+    
+    style Frontend fill:#e1f5ff
+    style Gateway fill:#fff3e0
+    style AppLayer fill:#f3e5f5
+    style Data fill:#e8f5e9
+    style External fill:#fce4ec
+```
+
+### Key Workflows
+
+-  **Teacher:** Create quiz → Add questions → Generate from docs → Review attempts
+-  **Student:** View quizzes → Take quiz → Submit → View score
+-  **System:** Validate → Score → Generate AI questions
+
+**For detailed diagrams with full explanations, see the [diagrams folder →](diagrams/)**
+
+---
+
+## Contributing
+
+1. Follow PEP 8 style guidelines
+2. Write unit tests for new features
+3. Update documentation
+4. Create feature branches: `feature/feature-name`
+5. Submit pull requests for review
+
+---
+
+## Testing
+
+- **Unit Tests:** `python manage.py test quiz_api`
+- **Coverage Report:** `coverage run --source='.' manage.py test && coverage report`
+- **Minimum Coverage:** 80%
+
+---
+
+## Support & Troubleshooting
+
+For common issues and solutions, refer to the [Backend Developer Guide](docs/BACKEND_API_REFERENCE.md).
+
+---
+
+## License
+
+This project is part of CSE4204 Course Assignment. All rights reserved by the course instructors.
+
+---
+
 
 - Django 4.2.17
 - Django REST Framework
