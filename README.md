@@ -46,17 +46,18 @@ Traditional quiz creation and administration processes are time-consuming and re
 
 ---
 
-## Team Information
+## Development Team Details
 
-| Role | Name | ID | Responsibilities |
-|------|------|-----|------------------|
-| Team Lead | [Your Name] | [ID] | Project coordination, overall delivery |
-| Backend Lead | [Your Name] | [ID] | Backend development, API design |
-| Frontend Lead | [Your Name] | [ID] | Frontend development, UI/UX |
-| Database Admin | [Your Name] | [ID] | Database design, optimization |
-| QA Lead | [Your Name] | [ID] | Testing, quality assurance |
+This university project was created by team **CSE4204-8D-T04**.
 
-**Update the table above with your actual team members.**
+### Team Members
+
+| No. | Name | Student ID | Role / Responsibility | Email |
+|---|---|---|---|---|
+| 1 | MD Rohan | 11220320958 | Backend Developer, Full Stack Development | therohansec@gmail.com |
+| 2 | Sharmin Nahar Tumpa | 11220320962 | AI Integration | tumpa540264@gmail.com |
+| 3 | Pial Tarofdar | 11220320965 | Frontend Developer | pialtarofdar55@gmail.com |
+| 4 | Sanjana Athoy | 11220320953 | Overall Technical Help | sanjanaathoy55@gmail.com |
 
 ---
 
@@ -730,15 +731,3 @@ See [docs/AI_INTEGRATION_GUIDE.md](docs/AI_INTEGRATION_GUIDE.md) for a full impl
 - Use the sample SQL script at the project root to seed a local testing database.
 - The current backend is designed for local development and should be hardened before production deployment.
 
-## Development Team Details
-
-This university project was created by team **CSE4204-8D-T04**.
-
-### Team Members
-
-| No. | Name | Student ID | Role / Responsibility | Email |
-|---|---|---|---|---|
-| 1 | MD Rohan | 11220320958 | Backend Developer, Full Stack Development | therohansec@gmail.com |
-| 2 | Sharmin Nahar Tumpa | 11220320962 | AI Integration | tumpa540264@gmail.com |
-| 3 | Pial Tarofdar | 11220320965 | Frontend Developer | pialtarofdar55@gmail.com |
-| 4 | Sanjana Athoy | 11220320953 | Overall Technical Help | sanjanaathoy55@gmail.com |
