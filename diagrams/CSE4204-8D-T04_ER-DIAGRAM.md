@@ -1,76 +1,68 @@
 # 2. ENTITY RELATIONSHIP DIAGRAM (ER DIAGRAM)
 ## CSE4204-8D-T04 Smart Quiz Generator
 
-**Description:** The ER Diagram represents the database schema showing 7 entities and their relationships. It defines the data model for the Smart Quiz Generator, including users, quizzes, questions, student attempts, authentication tokens, and role management.
+**Description:** The ER Diagram represents the database schema of the Smart Quiz Generator. It combines the **currently implemented** Django models with the **planned** entities from the SRS (clearly marked). Authentication and role management reuse Django's built-in `auth_user`, `auth_group`, and `authtoken_token` tables.
+
+> **Notation:** `PK` = Primary Key · `FK` = Foreign Key · `UK` = Unique Key.
+> **Status tags:** ✅ = implemented in [`models.py`](../backend/quiz_api/models.py) / Django · 🟡 = planned per SRS, not yet in code.
 
 **Key Entities:**
-- **User** - System users (teachers and students)
-- **Group** - Role management (teacher/student groups)
-- **AuthToken** - Token-based authentication
-- **Quiz** - Quiz metadata and configuration
-- **Question** - Quiz questions with options and answers
-- **QuizAttempt** - Student submissions and scores
+- **USER** (`auth_user`) — system users (teachers and students) — *Django built-in* ✅
+- **GROUP** (`auth_group`) — role groups: `teacher` / `student` — *Django built-in* ✅
+- **AUTHTOKEN** (`authtoken_token`) — token-based authentication — *DRF built-in* ✅
+- **QUIZ** — quiz metadata and configuration ✅
+- **QUESTION** — MCQ content, options, correct answer, explanation ✅
+- **QUIZATTEMPT** — student submissions, score, and embedded responses ✅
 
 **Key Relationships:**
-- 1 User can create many Quizzes (1:M)
-- 1 Quiz contains many Questions (1:M)
-- 1 Quiz has many QuizAttempts (1:M)
-- 1 User has 1 AuthToken (1:1)
-- 1 User belongs to 1 Group (1:1)
+- A USER belongs to one or more GROUPs (M:N via Django `auth_user_groups`) ✅
+- A USER has at most one AUTHTOKEN (1:1) ✅
+- A QUIZ contains many QUESTIONs (1:M) ✅
+- A QUIZ receives many QUIZATTEMPTs (1:M) ✅
+- A USER (teacher) *creates* many QUIZzes (1:M via `created_by`) 🟡 *planned*
 
 ```mermaid
 erDiagram
-    USER ||--o{ GROUP : "belongs to"
-    USER ||--o{ AUTHTOKEN : "has"
-    USER ||--o{ QUIZ : "creates"
+    USER }o--o{ GROUP : "belongs to"
+    USER ||--o| AUTHTOKEN : "has"
+    USER ||--o{ QUIZ : "creates (planned)"
     QUIZ ||--o{ QUESTION : "contains"
-    QUIZ ||--o{ QUIZATTEMPT : "has"
-    QUESTION ||--o{ QUIZATTEMPT : "answered in"
-    GROUP ||--o{ PERMISSION : "grants"
+    QUIZ ||--o{ QUIZATTEMPT : "receives"
 
     USER {
-        int user_id PK
-        string email UK
-        string password_hash
-        string first_name
-        string last_name
-        datetime created_at
-        datetime updated_at
+        int id PK
+        string username UK
+        string email
+        string password "hashed (PBKDF2)"
         boolean is_active
+        datetime date_joined
     }
 
     GROUP {
-        int group_id PK
+        int id PK
         string name UK "teacher or student"
     }
 
     AUTHTOKEN {
-        int token_id PK
-        int user_id FK
-        string token_hash UK
-        datetime created_at
-    }
-
-    PERMISSION {
-        int permission_id PK
-        int group_id FK
-        string action "create, read, update, delete"
+        string key PK "token string"
+        int user_id FK "1:1 with USER"
+        datetime created
     }
 
     QUIZ {
-        int quiz_id PK
-        int created_by FK "teacher user_id"
+        int id PK
+        int created_by FK "teacher user_id (PLANNED)"
         string title
         text description
-        string difficulty
-        int duration_minutes
-        boolean is_active
+        string difficulty "default Medium"
+        int duration_minutes "default 5"
+        boolean is_active "default true"
         datetime created_at
         datetime updated_at
     }
 
     QUESTION {
-        int question_id PK
+        int id PK
         int quiz_id FK
         text prompt
         string option_a
@@ -79,59 +71,74 @@ erDiagram
         string option_d
         string correct_option "A, B, C, or D"
         text explanation
-        int question_order
-        datetime created_at
+        int order "default 1"
     }
 
     QUIZATTEMPT {
-        int attempt_id PK
+        int id PK
         int quiz_id FK
-        string student_name
-        json responses "student answers"
+        string student_name "default Anonymous"
+        json responses "embedded answer list"
         int score
-        int total "total questions"
+        int total
         datetime created_at
     }
 ```
 
 ## Entity Details
 
-| Entity | Purpose | Primary Key | Foreign Keys |
-|--------|---------|-------------|--------------|
-| **USER** | User accounts | user_id | - |
-| **GROUP** | Role groups (teacher/student) | group_id | - |
-| **AUTHTOKEN** | Authentication tokens | token_id | user_id |
-| **PERMISSION** | Access permissions | permission_id | group_id |
-| **QUIZ** | Quiz information | quiz_id | created_by (user_id) |
-| **QUESTION** | Quiz questions | question_id | quiz_id |
-| **QUIZATTEMPT** | Student submissions | attempt_id | quiz_id |
+| Entity | DB Table | Purpose | Primary Key | Foreign Keys |
+|--------|----------|---------|-------------|--------------|
+| **USER** | `auth_user` | User accounts | `id` | — |
+| **GROUP** | `auth_group` | Role groups (teacher/student) | `id` | — |
+| **AUTHTOKEN** | `authtoken_token` | Auth tokens | `key` | `user_id` |
+| **QUIZ** | `quiz_api_quiz` | Quiz information | `id` | `created_by` 🟡 |
+| **QUESTION** | `quiz_api_question` | Quiz questions | `id` | `quiz_id` |
+| **QUIZATTEMPT** | `quiz_api_quizattempt` | Student submissions | `id` | `quiz_id` |
 
 ## Relationship Descriptions
 
-### 1:1 Relationships
-- **User ↔ AuthToken:** Each user has one authentication token
-- **User ↔ Group:** Each user belongs to one role group
+### 1:1 / 1:0..1
+- **USER ↔ AUTHTOKEN:** Each user has at most one DRF authentication token.
 
-### 1:M Relationships
-- **User → Quiz:** Teachers create multiple quizzes
-- **Quiz → Question:** A quiz contains many questions
-- **Quiz → QuizAttempt:** A quiz receives many student attempts
-- **Group → Permission:** A group has many permissions
+### 1:M
+- **USER → QUIZ** *(planned)*: A teacher owns/creates many quizzes via `created_by`. **Not yet in code** — the current `Quiz` model has no owner field, so quiz ownership/teacher-isolation (SRS §4.1) is not enforced.
+- **QUIZ → QUESTION:** A quiz contains many questions (`Question.quiz` FK, `on_delete=CASCADE`).
+- **QUIZ → QUIZATTEMPT:** A quiz receives many attempts (`QuizAttempt.quiz` FK, `on_delete=CASCADE`).
 
-## Data Types
+### M:N
+- **USER ↔ GROUP:** Django maps users to groups through the `auth_user_groups` junction table. Conceptually each user is assigned exactly one role (`teacher` or `student`) at registration.
 
-- **PK** = Primary Key (unique identifier)
-- **FK** = Foreign Key (references another table)
-- **UK** = Unique Key (must be unique)
-- **int** = Integer
-- **string** = Text (varchar)
-- **text** = Long text (textarea)
-- **json** = JSON data format
-- **datetime** = Date and time
-- **boolean** = True/False
+## How student answers are stored (important)
+
+There is **no direct relational link** between `QUESTION` and `QUIZATTEMPT`. Instead, each attempt stores its answers inside the `QuizAttempt.responses` **JSON** column as a list of objects:
+
+```json
+[
+  { "question": 1, "selected_option": "B", "correct_option": "B", "is_correct": true },
+  { "question": 2, "selected_option": "A", "correct_option": "C", "is_correct": false }
+]
+```
+
+This denormalized design (per SRS **FR-30**) keeps each attempt self-contained and avoids a separate answer table.
+
+## Changes from the previous version
+
+This diagram was corrected to match the actual implementation:
+
+| Previous (incorrect) | Corrected |
+|----------------------|-----------|
+| `USER.email` marked as Unique Key; login by email | Login is **username-based** (Django default); email is non-unique/optional |
+| `QUESTION ||--o{ QUIZATTEMPT "answered in"` (direct FK) | Removed — answers live in `QuizAttempt.responses` JSON |
+| Standalone `PERMISSION` table | Permissions are enforced in code via DRF `BasePermission` classes + Django Groups, not a custom table |
+| `created_by` shown as a live FK | Marked **🟡 planned** — not present in current `Quiz` model |
+| `USER ||--o{ GROUP` (1:M) | Corrected to M:N (`}o--o{`) per Django's group model |
 
 ---
 
-**Related Files:**
-- See [01-USE-CASE-DIAGRAM.md](01-USE-CASE-DIAGRAM.md) for functional requirements
-- See [00-ARCHITECTURE-OVERVIEW.md](00-ARCHITECTURE-OVERVIEW.md) for system architecture
+**Repository:** https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR
+
+**Related Files (GitHub):**
+- [Use Case Diagram](https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR/blob/main/diagrams/CSE4204-8D-T04_USE_CASE_DIAGRAM.md) — functional requirements
+- [Activity Diagram](https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR/blob/main/diagrams/CSE4204-8D-T04_ACTIVITY-DIAGRAM.md) — workflows
+- [Architecture Diagram](https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR/blob/main/diagrams/CSE4204-8D-T04_ARCHITECTURE-DIAGRAM.md) — system architecture

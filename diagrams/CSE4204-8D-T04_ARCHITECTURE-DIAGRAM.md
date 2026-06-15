@@ -143,6 +143,9 @@ graph TB
 
 ---
 
-**Related Files:**
-- See [01-USE-CASE-DIAGRAM.md](01-USE-CASE-DIAGRAM.md) for functional flows
-- See [02-ER-DIAGRAM.md](02-ER-DIAGRAM.md) for data model
+**Repository:** https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR
+
+**Related Files (GitHub):**
+- [Use Case Diagram](https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR/blob/main/diagrams/CSE4204-8D-T04_USE_CASE_DIAGRAM.md) — functional flows
+- [ER Diagram](https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR/blob/main/diagrams/CSE4204-8D-T04_ER-DIAGRAM.md) — data model
+- [Activity Diagram](https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR/blob/main/diagrams/CSE4204-8D-T04_ACTIVITY-DIAGRAM.md) — workflows
