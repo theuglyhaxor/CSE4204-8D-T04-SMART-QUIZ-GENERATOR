@@ -2,7 +2,9 @@
 
 **CSE4204-8D-T04** | **Batch 8D** | **Team 04**
 
-**SMART QUIZ GENERATOR** is an intelligent, role-based quiz management system that streamlines the process of creating, administering, and evaluating quizzes. The system leverages AI technology (Google Gemini) to automatically generate quiz questions from various document formats while providing a secure, user-friendly platform for educators and students.
+**SMART QUIZ GENERATOR** is an intelligent, role-based quiz management system that streamlines the process of creating, administering, and evaluating quizzes. The system leverages AI technology — with **two interchangeable providers, Google Gemini and Anthropic Claude** — to automatically generate quiz questions from various document formats while providing a secure, user-friendly platform for educators and students.
+
+> 📌 **All AI logic lives in one place:** the [`backend/ai_integration/`](backend/ai_integration/) package. See its [README](backend/ai_integration/README.md) for the full design.
 
 ---
 
@@ -26,7 +28,7 @@
 
 - Enable efficient quiz creation through both manual input and AI-powered automatic generation from documents
 - Implement secure role-based access control with distinct teacher and student workflows
-- Provide intelligent question generation using Gemini AI
+- Provide intelligent question generation using Gemini or Claude AI (provider is configurable)
 - Facilitate secure student assessment with real-time scoring and tracking
 - Support multiple file formats (PDF, TXT, MD, CSV, JSON) for document-based question generation
 - Deliver comprehensive REST API endpoints for seamless third-party integration
@@ -86,7 +88,8 @@ This university project was created by team **CSE4204-8D-T04**.
 
 - ✅ AI-powered quiz generation from documents
 - ✅ Support for PDF, TXT, Markdown, CSV, JSON formats
-- ✅ Gemini API integration
+- ✅ Pluggable AI providers — Google Gemini (default) and Anthropic Claude
+- ✅ Per-request or global provider selection (`provider` field / `AI_PROVIDER` env)
 - ✅ Token-based authentication and authorization
 - ✅ RESTful API endpoints with comprehensive documentation
 - ✅ Role-based access control (Teacher/Student)
@@ -101,13 +104,14 @@ This university project was created by team **CSE4204-8D-T04**.
 
 | Component | Technology |
 |-----------|-----------|
-| Framework | Django 3.2+ |
+| Framework | Django 4.2 |
 | API | Django REST Framework (DRF) |
 | Authentication | Django REST Framework Token |
 | Database | MySQL 5.7+ / MariaDB 10.3+ |
 | Language | Python 3.9+ |
-| AI Integration | Google Gemini API |
-| File Processing | PyPDF2, python-docx, csv, json |
+| AI Integration | Google Gemini API (REST) + Anthropic Claude (`anthropic` SDK) |
+| File Processing | pypdf, plus stdlib text/csv/json decoding |
+| PDF reports (dev tool) | fpdf2 |
 
 ### Frontend (To Be Developed Separately)
 
@@ -138,17 +142,27 @@ CSE4204-8D-T04-SMART-QUIZ-GENERATOR/
 ├── backend/
 │   ├── manage.py                                # Django management script
 │   ├── requirements.txt                         # Python dependencies
-│   ├── quiz_api/                                # Main app
+│   ├── manual_api_test.py                       # End-to-end backend smoke test (no frontend)
+│   ├── ai_integration/                          # ⭐ ALL AI logic (provider-agnostic package)
+│   │   ├── __init__.py                          # Public API (generate_quiz, etc.)
+│   │   ├── README.md                            # AI integration design document
+│   │   ├── documents.py                         # File -> text extraction (AI input pipeline)
+│   │   ├── prompts.py                           # Provider-neutral prompt builder
+│   │   ├── validation.py                        # Shared quiz JSON schema + validation
+│   │   ├── gemini.py                            # Google Gemini provider
+│   │   ├── claude.py                            # Anthropic Claude provider
+│   │   ├── providers.py                         # generate_quiz() dispatcher
+│   │   └── generate_sample_quizzes_pdf.py       # CLI: generate sample quizzes -> PDF
+│   ├── quiz_api/                                # Main Django app (web layer)
 │   │   ├── __init__.py
 │   │   ├── admin.py                             # Django admin configuration
 │   │   ├── apps.py                              # App configuration
 │   │   ├── models.py                            # Database models (Quiz, Question, QuizAttempt)
 │   │   ├── permissions.py                       # Custom permission classes
 │   │   ├── serializers.py                       # DRF serializers
-│   │   ├── services.py                          # Business logic (AI generation, parsing)
 │   │   ├── tests.py                             # Unit tests
 │   │   ├── urls.py                              # URL routing
-│   │   ├── views.py                             # API endpoints
+│   │   ├── views.py                             # API endpoints (calls ai_integration)
 │   │   └── migrations/                          # Database migrations
 │   │       ├── __init__.py
 │   │       ├── 0001_initial.py                  # Initial schema
@@ -156,7 +170,7 @@ CSE4204-8D-T04-SMART-QUIZ-GENERATOR/
 │   └── smart_quiz_backend/
 │       ├── __init__.py
 │       ├── asgi.py                              # ASGI configuration
-│       ├── settings.py                          # Django settings
+│       ├── settings.py                          # Django settings (AI keys + provider)
 │       ├── urls.py                              # Global URL configuration
 │       └── wsgi.py                              # WSGI configuration
 ├── docs/
@@ -200,15 +214,26 @@ CSE4204-8D-T04-SMART-QUIZ-GENERATOR/
 
 4. **Configure environment variables:**
    Create a `.env` file in the `backend/` directory:
-   ```
-   DEBUG=True
-   SECRET_KEY=your-secret-key-here
-   DATABASE_NAME=smart_quiz_db
-   DATABASE_USER=root
-   DATABASE_PASSWORD=your-password
-   DATABASE_HOST=localhost
-   DATABASE_PORT=3306
+   ```dotenv
+   DJANGO_DEBUG=1
+   DJANGO_SECRET_KEY=your-secret-key-here
+   DB_NAME=smart_quiz_generator
+   DB_USER=root
+   DB_PASSWORD=your-password
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+
+   # --- AI providers ---
+   AI_PROVIDER=gemini                 # default provider: gemini | claude
+
+   # Google Gemini
    GEMINI_API_KEY=your-gemini-api-key
+   GEMINI_MODEL=gemini-2.5-flash      # optional
+   GEMINI_TIMEOUT=30                  # optional
+
+   # Anthropic Claude (only needed if you use the claude provider)
+   ANTHROPIC_API_KEY=your-anthropic-api-key
+   CLAUDE_MODEL=claude-opus-4-8       # optional
    ```
 
 5. **Run migrations:**
@@ -342,6 +367,7 @@ CMD ["gunicorn", "smart_quiz_backend.wsgi:application", "--bind", "0.0.0.0:8000"
 ## Documentation
 
 -  **[Software Requirements Specification (SRS)](CSE4204-8D-T04_SRS.md)** - Complete requirements document
+-  **[AI Integration (package design)](backend/ai_integration/README.md)** - How Gemini + Claude are implemented
 -  **[API Reference](docs/BACKEND_API_REFERENCE.md)** - Detailed API documentation
 -  **[Database Architecture](docs/DATABASE_ARCHITECTURE.md)** - Schema and relationships
 -  **[AI Integration Guide](docs/AI_INTEGRATION_GUIDE.md)** - Gemini API setup
@@ -382,7 +408,7 @@ graph TB
         QUESTION["❓ Question Service<br/>Management"]
         SCORING["⭐ Scoring Service<br/>Calculate Scores"]
         PARSER["📄 Document Parser<br/>PDF/TXT/MD/CSV/JSON"]
-        AI["🤖 AI Client<br/>Gemini Integration"]
+        AI["🤖 AI Integration<br/>Gemini + Claude providers"]
     end
     
     subgraph Data["💾 DATA LAYER"]
@@ -392,6 +418,7 @@ graph TB
     
     subgraph External["☁️ EXTERNAL SERVICES"]
         GEMINI["🌟 Google Gemini API<br/>AI Question Generation"]
+        CLAUDE["🧠 Anthropic Claude API<br/>AI Question Generation"]
     end
     
     WEB -->|HTTPS/REST API| LB
@@ -409,7 +436,9 @@ graph TB
     SCORING -->|Update| DB
     PARSER -->|Upload| DB
     AI -->|Call API| GEMINI
+    AI -->|Call API| CLAUDE
     GEMINI -->|Return Questions| AI
+    CLAUDE -->|Return Questions| AI
     
     AUTH -->|Cache| CACHE
     QUIZ -->|Cache| CACHE
@@ -471,8 +500,8 @@ This project is part of CSE4204 Course Assignment. All rights reserved by the co
 
 ## Frontend (Upcoming)
 - React.js
-## AI integration (Upcoming)
-- Gemini AI
+## AI integration (Implemented)
+- Google Gemini (default) and Anthropic Claude — see [backend/ai_integration/](backend/ai_integration/README.md)
 ## Deployment (Upcoming)
 - Railway/Render
 
@@ -501,7 +530,7 @@ A dedicated database architecture guide lives in [docs/DATABASE_ARCHITECTURE.md]
 - `POST /api/quizzes/<id>/submit/` — submit answers and calculate the score
 - `GET /api/quizzes/<id>/attempts/` — list quiz attempts
 - `POST /api/documents/parse/` — upload and parse a PDF or text file
-- `POST /api/ai/generate-quiz/` — generate a quiz using Gemini
+- `POST /api/ai/generate-quiz/` — generate a quiz using AI (Gemini or Claude)
 
 ---
 
@@ -544,12 +573,22 @@ $env:DJANGO_DEBUG = "1"
 $env:CORS_ALLOWED_ORIGINS = "http://127.0.0.1:3000,http://localhost:3000"
 ```
 
-Add Gemini settings when you want AI generation enabled:
+Add AI provider settings when you want AI generation enabled.
+
+Gemini (default provider):
 
 ```powershell
 $env:GEMINI_API_KEY = "your-api-key"
-$env:GEMINI_MODEL = "gemini-1.5-flash"
+$env:GEMINI_MODEL = "gemini-2.5-flash"
 $env:GEMINI_TIMEOUT = "30"
+```
+
+Claude (optional second provider):
+
+```powershell
+$env:AI_PROVIDER = "claude"          # make Claude the default, or send "provider":"claude" per request
+$env:ANTHROPIC_API_KEY = "your-anthropic-key"
+$env:CLAUDE_MODEL = "claude-opus-4-8"
 ```
 
 > If your XAMPP root user has a password, replace the blank password with your actual password.
@@ -688,37 +727,82 @@ See [docs/FRONTEND_DEVELOPER_GUIDE.md](docs/FRONTEND_DEVELOPER_GUIDE.md) for a d
 
 ---
 
-## Gemini AI integration
+## AI Integration (Gemini + Claude)
 
-The AI flow is server-side only.
+The AI flow is **server-side only** and lives entirely in the
+[`backend/ai_integration/`](backend/ai_integration/) package. The Django web
+layer never talks to a model directly — it calls one function, `generate_quiz()`,
+which selects a provider and delegates. The full design is documented in
+[backend/ai_integration/README.md](backend/ai_integration/README.md).
+
+### Supported providers
+
+| Provider | Default model | How it produces JSON | Dependency |
+|----------|---------------|----------------------|------------|
+| **Google Gemini** (default) | `gemini-2.5-flash` | Prompted for JSON; response parsed and markdown fences stripped | none (stdlib `urllib`) |
+| **Anthropic Claude** | `claude-opus-4-8` | Structured outputs (`output_config.format`) — schema-enforced JSON | `anthropic` SDK |
+
+Gemini is the default, so existing behaviour is unchanged. Claude is opt-in.
 
 ### Current AI behavior
 
-1. The frontend sends generation details to `POST /api/ai/generate-quiz/`.
-2. The backend validates input and calls Gemini.
-3. The backend validates the Gemini response.
-4. The backend creates a `Quiz` record and linked `Question` records.
-5. The backend returns the created quiz and generated questions.
+1. The client sends generation details to `POST /api/ai/generate-quiz/` (teacher only).
+2. The view reads the request (including an optional `"provider"` field) and calls
+   `generate_quiz(payload, provider)`.
+3. The dispatcher routes to the Gemini or Claude provider, which builds the prompt
+   and calls the model.
+4. The response runs through one shared validation gate (`validate_generated_quiz`).
+5. The backend creates a `Quiz` record and linked `Question` records.
+6. The backend returns the created quiz and generated questions (`201`).
 
-### Required environment variables
+### Choosing a provider
 
-- `GEMINI_API_KEY`
-- `GEMINI_MODEL` (optional, defaults to `gemini-1.5-flash`)
-- `GEMINI_TIMEOUT` (optional, defaults to `30`)
+- **Globally:** set `AI_PROVIDER=gemini` or `AI_PROVIDER=claude` in the environment.
+- **Per request:** add `"provider": "claude"` (or `"gemini"`) to the POST body — this
+  overrides `AI_PROVIDER` for that one call.
 
-### AI validation rules
+### Environment variables
+
+| Variable | Provider | Required? | Default |
+|----------|----------|-----------|---------|
+| `AI_PROVIDER` | dispatcher | optional | `gemini` |
+| `GEMINI_API_KEY` | Gemini | required for Gemini | — |
+| `GEMINI_MODEL` | Gemini | optional | `gemini-2.5-flash` |
+| `GEMINI_TIMEOUT` | Gemini | optional | `30` |
+| `ANTHROPIC_API_KEY` | Claude | required for Claude | — |
+| `CLAUDE_MODEL` | Claude | optional | `claude-opus-4-8` |
+
+If a provider's key is missing, that provider returns **HTTP 503** with a clear
+message (e.g. `GEMINI_API_KEY is not configured.`) instead of crashing.
+
+### AI validation rules (both providers)
 
 - Exactly four options are required.
-- `correct_option` must be `A`, `B`, `C`, or `D`.
+- `correct_option` must be `A`, `B`, `C`, or `D` (normalised to uppercase).
 - The generated payload must include a non-empty title.
 - The response must contain the requested number of questions.
 
-See [docs/AI_INTEGRATION_GUIDE.md](docs/AI_INTEGRATION_GUIDE.md) for a full implementation guide.
+### Reviewing quiz quality (PDF tool)
+
+Generate real quizzes and export them to PDF for review — no frontend or database needed:
+
+```powershell
+cd backend
+python ai_integration/generate_sample_quizzes_pdf.py                       # default topics, gemini
+python ai_integration/generate_sample_quizzes_pdf.py "Quantum physics"     # custom topic
+python ai_integration/generate_sample_quizzes_pdf.py --provider claude "Cell biology"
+```
+
+PDFs are written to `backend/sample_quizzes/`.
+
+See [backend/ai_integration/README.md](backend/ai_integration/README.md) and
+[docs/AI_INTEGRATION_GUIDE.md](docs/AI_INTEGRATION_GUIDE.md) for full details.
 
 ---
 
 ## Documentation
 
+- [AI Integration (package design)](backend/ai_integration/README.md)
 - [Backend API Reference](docs/BACKEND_API_REFERENCE.md)
 - [Frontend Developer Guide](docs/FRONTEND_DEVELOPER_GUIDE.md)
 - [Gemini AI Integration Guide](docs/AI_INTEGRATION_GUIDE.md)

@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py check)",
+      "Bash(python manage.py migrate --check)",
+      "Bash(timeout 12 python manage.py runserver)",
+      "Bash(timeout 60 python manage.py test)",
+      "Bash(python -m pip show djangorestframework)",
+      "Bash(python -m pip install -r requirements.txt)",
+      "Bash(timeout 90 python manage.py test)",
+      "Bash(python -c \"import dotenv; print\\('dotenv OK', dotenv.__version__\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(python -c 'import sys; sys.path.insert\\(0,'\\\\''.'\\\\''\\); *)",
+      "Bash(python -c 'import sys; sys.path.insert\\(0,'\\\\''backend'\\\\''\\) *)",
+      "Bash(python manage.py migrate)",
+      "Bash(python manage.py runserver 127.0.0.1:8000 --noreload)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8000/api/quizzes/)",
+      "PowerShell(Start-Process -FilePath python -ArgumentList \"manage.py\",\"runserver\",\"127.0.0.1:8000\",\"--noreload\" -WorkingDirectory \"$PWD\\\\backend\" -RedirectStandardOutput \"$env:TEMP\\\\sqg_server.out\" -RedirectStandardError \"$env:TEMP\\\\sqg_server.err\" -PassThru | Select-Object Id; Start-Sleep -Seconds 3; \\(Invoke-WebRequest -Uri http://127.0.0.1:8000/api/quizzes/ -SkipHttpErrorCheck\\).StatusCode)",
+      "PowerShell(python \"$PWD\\\\backend\\\\manual_api_test.py\" http://127.0.0.1:8000)",
+      "PowerShell(python manual_api_test.py http://127.0.0.1:8000)",
+      "PowerShell($p = Start-Process -FilePath python -ArgumentList \"manage.py\",\"runserver\",\"127.0.0.1:8000\",\"--noreload\" -PassThru -RedirectStandardOutput \"$env:TEMP\\\\sqg_srv.out\" -RedirectStandardError \"$env:TEMP\\\\sqg_srv.err\"; \"started PID $\\($p.Id\\)\"; Start-Sleep -Seconds 3; \\(Invoke-WebRequest -Uri http://127.0.0.1:8000/api/quizzes/ -SkipHttpErrorCheck\\).StatusCode)",
+      "PowerShell(python _probe_models.py)",
+      "PowerShell(python -c \"import reportlab; print\\('reportlab', reportlab.Version\\)\" 2>&1)",
+      "PowerShell(python -c \"import fpdf; print\\('fpdf', getattr\\(fpdf,'__version__','?'\\)\\)\" 2>&1)",
+      "PowerShell(python -m pip install fpdf2 2>&1)",
+      "PowerShell(python generate_sample_quizzes_pdf.py)",
+      "PowerShell(python backend\\\\generate_sample_quizzes_pdf.py)",
+      "PowerShell(python -c \"from pypdf import PdfReader; r=PdfReader\\('backend/sample_quizzes/02_Python_programming_fundamentals.pdf'\\); print\\('pages:', len\\(r.pages\\)\\); print\\(r.pages[0].extract_text\\(\\)[:1600]\\)\")",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(python -m pip install \"anthropic>=0.40\")",
+      "Bash(python -c \"import os; print\\('ANTHROPIC_API_KEY set:', bool\\(os.environ.get\\('ANTHROPIC_API_KEY'\\)\\)\\)\")"
+    ]
+  }
+}

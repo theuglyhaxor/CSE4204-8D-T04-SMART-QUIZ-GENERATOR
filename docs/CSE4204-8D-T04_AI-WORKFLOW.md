@@ -1,7 +1,7 @@
 # 6. AI INTEGRATION WORKFLOW
 ## CSE4204-8D-T04 Smart Quiz Generator
 
-**Description:** This document explains *why* AI is used, *which* service is used, the *input* it receives, the *output* it produces, and *how* it improves the project. It is the mandatory AI-integration deliverable. Implementation lives in [`backend/quiz_api/services.py`](../backend/quiz_api/services.py) and is exposed through [`GeminiGenerateQuizView`](../backend/quiz_api/views.py).
+**Description:** This document explains *why* AI is used, *which* service is used, the *input* it receives, the *output* it produces, and *how* it improves the project. It is the mandatory AI-integration deliverable. Implementation lives in the [`backend/ai_integration/`](../backend/ai_integration/README.md) package (Gemini + Claude providers) and is exposed through [`GeminiGenerateQuizView`](../backend/quiz_api/views.py).
 
 ---
 
@@ -21,12 +21,12 @@ Manually authoring multiple-choice questions is the most time-consuming part of 
 
 | Item | Value |
 |------|-------|
-| Provider | **Google Gemini** (Generative Language API) |
-| Default model | `gemini-1.5-flash` (override via `GEMINI_MODEL`) |
-| Endpoint | `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent` |
-| Call style | Server-side HTTPS POST (Python `urllib`), API key from env |
-| Generation config | `temperature=0.2`, `topP=0.95`, `maxOutputTokens=2000` |
-| Timeout | `GEMINI_TIMEOUT` seconds (default 30) |
+| Provider | **Google Gemini** (default) or **Anthropic Claude** — selectable via `AI_PROVIDER` / per-request `provider` |
+| Default model | Gemini: `gemini-2.5-flash` (override via `GEMINI_MODEL`); Claude: `claude-opus-4-8` (override via `CLAUDE_MODEL`) |
+| Endpoint | Gemini: `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`; Claude: `anthropic` SDK (`messages.create`) |
+| Call style | Server-side; Gemini via Python `urllib`, Claude via the `anthropic` SDK; API key from env |
+| Generation config | Gemini: `temperature=0.2`, `topP=0.95`, `maxOutputTokens=8192`; Claude: `max_tokens=16000` + structured outputs |
+| Timeout | Gemini: `GEMINI_TIMEOUT` seconds (default 30); Claude: SDK default |
 
 **Security:** The `GEMINI_API_KEY` lives **only on the backend** as an environment variable. The frontend never sees it — all AI calls are proxied through the Django backend.
 

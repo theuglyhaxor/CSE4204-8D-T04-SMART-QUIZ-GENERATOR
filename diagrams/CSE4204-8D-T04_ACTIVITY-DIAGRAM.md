@@ -18,7 +18,7 @@ Each diagram is drawn as a Mermaid flowchart where diamonds (`{ }`) are **decisi
 
 This is the flagship workflow. A teacher requests AI-generated questions; the backend builds a prompt, calls Google Gemini, validates the response, persists a `Quiz` + `Question` records, and returns them.
 
-Backed by [`GeminiGenerateQuizView`](../backend/quiz_api/views.py) and [`generate_quiz_with_gemini()`](../backend/quiz_api/services.py).
+Backed by [`GeminiGenerateQuizView`](../backend/quiz_api/views.py) and the AI package [`generate_quiz()`](../backend/ai_integration/providers.py) (Gemini/Claude dispatcher).
 
 ```mermaid
 flowchart TD
@@ -137,7 +137,7 @@ flowchart TD
 
 A teacher uploads a learning document; the backend extracts text based on file type. (Document parsing and AI generation are currently separate endpoints — see [AI Integration Workflow](../docs/CSE4204-8D-T04_AI-WORKFLOW.md).)
 
-Backed by [`DocumentParseView`](../backend/quiz_api/views.py) and [`extract_text_from_uploaded_file()`](../backend/quiz_api/services.py).
+Backed by [`DocumentParseView`](../backend/quiz_api/views.py) and [`extract_text_from_uploaded_file()`](../backend/ai_integration/documents.py).
 
 ```mermaid
 flowchart TD

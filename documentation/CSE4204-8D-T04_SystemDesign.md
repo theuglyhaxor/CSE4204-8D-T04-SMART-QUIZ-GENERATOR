@@ -138,7 +138,7 @@ quizzes without seeing answers and receive instant, server-calculated scores.
 | Backend API | Django + Django REST Framework (Python 3.9+) |
 | Database | MySQL 5.7+ / MariaDB 10.3+ |
 | Authentication | DRF Token authentication + Django Groups (roles) |
-| AI Service | Google Gemini (`gemini-1.5-flash`) |
+| AI Service | Google Gemini (`gemini-2.5-flash`, default) or Anthropic Claude (`claude-opus-4-8`) — see `backend/ai_integration/` |
 | File Parsing | pypdf + UTF-8 text decoding (PDF/TXT/MD/CSV/JSON) |
 | Deployment (planned) | Gunicorn + Nginx, Railway/Render |
 
@@ -389,8 +389,11 @@ Per-endpoint input/output detail: [API Design on GitHub](https://github.com/theu
 **Why:** Writing MCQs by hand is slow; AI turns a topic + syllabus into
 validated questions in seconds, with the teacher reviewing before use.
 
-**Service:** Google Gemini (`gemini-1.5-flash`), called server-side. The
-`GEMINI_API_KEY` stays on the backend and is never exposed to the client.
+**Service:** Google Gemini (`gemini-2.5-flash`, default) or Anthropic Claude
+(`claude-opus-4-8`), called server-side via the provider-agnostic
+`backend/ai_integration/` package. The provider is chosen with `AI_PROVIDER` or a
+per-request `provider` field. API keys (`GEMINI_API_KEY` / `ANTHROPIC_API_KEY`)
+stay on the backend and are never exposed to the client.
 
 ```mermaid
 flowchart LR
