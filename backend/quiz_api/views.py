@@ -1,12 +1,13 @@
 from django.contrib.auth import authenticate
 from django.db.models import Count
 from rest_framework import status, viewsets
-from rest_framework.authtoken.models import Token
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Question, Quiz, QuizAttempt
 from .permissions import IsStudentUser, IsTeacherOrStudentUser, IsTeacherUser
@@ -21,6 +22,13 @@ from .serializers import (
 from ai_integration import extract_text_from_uploaded_file, generate_quiz
 
 
+def get_tokens_for_user(user, role):
+    """Issue a JWT refresh/access pair, embedding the user's role as a claim."""
+    refresh = RefreshToken.for_user(user)
+    refresh["role"] = role
+    return {"refresh": str(refresh), "access": str(refresh.access_token)}
+
+
 class AuthRegisterView(APIView):
     permission_classes = [AllowAny]
 
@@ -28,11 +36,11 @@ class AuthRegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        token, _ = Token.objects.get_or_create(user=user)
         role = user.groups.first().name if user.groups.exists() else "student"
+        tokens = get_tokens_for_user(user, role)
         return Response(
             {
-                "token": token.key,
+                **tokens,
                 "user": {"id": user.id, "username": user.username, "role": role},
             },
             status=status.HTTP_201_CREATED,
@@ -54,14 +62,36 @@ class AuthLoginView(APIView):
         if user is None:
             return Response({"detail": "Invalid username or password."}, status=status.HTTP_401_UNAUTHORIZED)
 
-        token, _ = Token.objects.get_or_create(user=user)
         role = user.groups.first().name if user.groups.exists() else "student"
+        tokens = get_tokens_for_user(user, role)
         return Response(
             {
-                "token": token.key,
+                **tokens,
                 "user": {"id": user.id, "username": user.username, "role": role},
             }
         )
+
+
+class AuthLogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # JWTs are stateless; "logout" means blacklisting the refresh token so it
+        # can no longer be used to mint new access tokens.
+        refresh = request.data.get("refresh")
+        if not refresh:
+            return Response(
+                {"detail": "Provide the 'refresh' token to invalidate."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            RefreshToken(refresh).blacklist()
+        except TokenError:
+            return Response(
+                {"detail": "Invalid or expired refresh token."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response({"detail": "Logged out successfully."}, status=status.HTTP_200_OK)
 
 
 class DocumentParseView(APIView):

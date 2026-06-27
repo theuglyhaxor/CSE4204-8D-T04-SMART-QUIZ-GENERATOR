@@ -1,0 +1,393 @@
+{
+  "info": {
+    "name": "Smart Quiz Generator API",
+    "_postman_id": "c4204-8d-t04-smart-quiz-generator",
+    "description": "Complete API collection for the Smart Quiz Generator backend (CSE4204-8D-T04).\n\nDjango REST Framework + **JWT authentication** (djangorestframework-simplejwt).\n\n## How to use\n1. Import this collection AND the `Smart_Quiz_Generator.postman_environment.json` environment.\n2. Select the environment (top-right).\n3. Run **Auth > Register Teacher** then **Auth > Register Student** (or **Login**). The test scripts automatically save the returned `access` and `refresh` tokens into environment variables.\n4. Run the quiz/question requests — they send `Authorization: Bearer {{accessToken}}` and reuse `quizId` / `questionId` automatically.\n\nBase URL is controlled by the `baseUrl` environment variable (default `http://127.0.0.1:8000/api`).\n\n## JWT notes\n- **access** token: short-lived (60 min), sent on every protected request as `Bearer <access>`.\n- **refresh** token: longer-lived (1 day); exchange it at `/auth/token/refresh/` for a new access token.\n- **logout** blacklists the refresh token so it can no longer be used.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Teacher",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.expect(pm.response.code).to.eql(201));",
+                  "const body = pm.response.json();",
+                  "if (body.access) { pm.environment.set('teacherToken', body.access); }",
+                  "if (body.refresh) { pm.environment.set('teacherRefresh', body.refresh); }",
+                  "pm.test('role is teacher', () => pm.expect(body.user.role).to.eql('teacher'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"teacher1\",\n  \"email\": \"teacher1@example.com\",\n  \"password\": \"Test@12345\",\n  \"role\": \"teacher\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register/", "host": ["{{baseUrl}}"], "path": ["auth", "register", ""] }
+          }
+        },
+        {
+          "name": "Register Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.expect(pm.response.code).to.eql(201));",
+                  "const body = pm.response.json();",
+                  "if (body.access) { pm.environment.set('studentToken', body.access); }",
+                  "if (body.refresh) { pm.environment.set('studentRefresh', body.refresh); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"student1\",\n  \"email\": \"student1@example.com\",\n  \"password\": \"Test@12345\",\n  \"role\": \"student\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register/", "host": ["{{baseUrl}}"], "path": ["auth", "register", ""] }
+          }
+        },
+        {
+          "name": "Login (Teacher)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.expect(pm.response.code).to.eql(200));",
+                  "const body = pm.response.json();",
+                  "if (body.access) { pm.environment.set('teacherToken', body.access); }",
+                  "if (body.refresh) { pm.environment.set('teacherRefresh', body.refresh); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"teacher1\",\n  \"password\": \"Test@12345\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login/", "host": ["{{baseUrl}}"], "path": ["auth", "login", ""] }
+          }
+        },
+        {
+          "name": "Login (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.access) { pm.environment.set('studentToken', body.access); }",
+                  "if (body.refresh) { pm.environment.set('studentRefresh', body.refresh); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"student1\",\n  \"password\": \"Test@12345\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login/", "host": ["{{baseUrl}}"], "path": ["auth", "login", ""] }
+          }
+        },
+        {
+          "name": "Login (Wrong Password) - expect 401",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"teacher1\",\n  \"password\": \"wrong-password\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login/", "host": ["{{baseUrl}}"], "path": ["auth", "login", ""] }
+          }
+        },
+        {
+          "name": "Refresh Access Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.expect(pm.response.code).to.eql(200));",
+                  "const body = pm.response.json();",
+                  "if (body.access) { pm.environment.set('teacherToken', body.access); }",
+                  "if (body.refresh) { pm.environment.set('teacherRefresh', body.refresh); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{teacherRefresh}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/token/refresh/", "host": ["{{baseUrl}}"], "path": ["auth", "token", "refresh", ""] }
+          }
+        },
+        {
+          "name": "Logout (blacklist refresh token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacherToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{teacherRefresh}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/logout/", "host": ["{{baseUrl}}"], "path": ["auth", "logout", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quizzes (Teacher)",
+      "item": [
+        {
+          "name": "Create Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.expect(pm.response.code).to.eql(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.environment.set('quizId', body.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacherToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Biology Basics\",\n  \"description\": \"Practice quiz for class 10 science\",\n  \"difficulty\": \"Medium\",\n  \"duration_minutes\": 10,\n  \"is_active\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/quizzes/", "host": ["{{baseUrl}}"], "path": ["quizzes", ""] }
+          }
+        },
+        {
+          "name": "Create Quiz as Student - expect 403",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Student should not create this\"\n}" },
+            "url": { "raw": "{{baseUrl}}/quizzes/", "host": ["{{baseUrl}}"], "path": ["quizzes", ""] }
+          }
+        },
+        {
+          "name": "List Quizzes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacherToken}}" }],
+            "url": { "raw": "{{baseUrl}}/quizzes/", "host": ["{{baseUrl}}"], "path": ["quizzes", ""] }
+          }
+        },
+        {
+          "name": "Retrieve Quiz",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacherToken}}" }],
+            "url": { "raw": "{{baseUrl}}/quizzes/{{quizId}}/", "host": ["{{baseUrl}}"], "path": ["quizzes", "{{quizId}}", ""] }
+          }
+        },
+        {
+          "name": "Update Quiz (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacherToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Biology Basics (Updated)\"\n}" },
+            "url": { "raw": "{{baseUrl}}/quizzes/{{quizId}}/", "host": ["{{baseUrl}}"], "path": ["quizzes", "{{quizId}}", ""] }
+          }
+        },
+        {
+          "name": "Delete Quiz",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacherToken}}" }],
+            "url": { "raw": "{{baseUrl}}/quizzes/{{quizId}}/", "host": ["{{baseUrl}}"], "path": ["quizzes", "{{quizId}}", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Questions (Teacher)",
+      "item": [
+        {
+          "name": "Add Question to Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.expect(pm.response.code).to.eql(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.environment.set('questionId', body.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacherToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quiz\": {{quizId}},\n  \"prompt\": \"What is the capital of France?\",\n  \"option_a\": \"Rome\",\n  \"option_b\": \"Paris\",\n  \"option_c\": \"Berlin\",\n  \"option_d\": \"Madrid\",\n  \"correct_option\": \"B\",\n  \"explanation\": \"Paris is the capital of France.\",\n  \"order\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/quizzes/{{quizId}}/questions/", "host": ["{{baseUrl}}"], "path": ["quizzes", "{{quizId}}", "questions", ""] }
+          }
+        },
+        {
+          "name": "List Questions for Quiz",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacherToken}}" }],
+            "url": { "raw": "{{baseUrl}}/quizzes/{{quizId}}/questions/", "host": ["{{baseUrl}}"], "path": ["quizzes", "{{quizId}}", "questions", ""] }
+          }
+        },
+        {
+          "name": "Update Question (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacherToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"explanation\": \"Paris has been the capital of France since 987 AD.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/questions/{{questionId}}/", "host": ["{{baseUrl}}"], "path": ["questions", "{{questionId}}", ""] }
+          }
+        },
+        {
+          "name": "Delete Question",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacherToken}}" }],
+            "url": { "raw": "{{baseUrl}}/questions/{{questionId}}/", "host": ["{{baseUrl}}"], "path": ["questions", "{{questionId}}", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quiz Taking (Student)",
+      "item": [
+        {
+          "name": "Get Student-Safe Questions (answers hidden)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/quizzes/{{quizId}}/student-questions/", "host": ["{{baseUrl}}"], "path": ["quizzes", "{{quizId}}", "student-questions", ""] }
+          }
+        },
+        {
+          "name": "Submit Quiz Attempt",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_name\": \"Student One\",\n  \"answers\": [\n    { \"question\": {{questionId}}, \"selected_option\": \"B\" }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/quizzes/{{quizId}}/submit/", "host": ["{{baseUrl}}"], "path": ["quizzes", "{{quizId}}", "submit", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attempts (Teacher)",
+      "item": [
+        {
+          "name": "List Attempts for Quiz",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacherToken}}" }],
+            "url": { "raw": "{{baseUrl}}/quizzes/{{quizId}}/attempts/", "host": ["{{baseUrl}}"], "path": ["quizzes", "{{quizId}}", "attempts", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Documents & AI (Teacher)",
+      "item": [
+        {
+          "name": "Parse Document (file upload)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacherToken}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [], "description": "Upload a PDF, TXT, MD, CSV, or JSON file" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/documents/parse/", "host": ["{{baseUrl}}"], "path": ["documents", "parse", ""] }
+          }
+        },
+        {
+          "name": "Generate Quiz with AI",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacherToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"AI Biology Quiz\",\n  \"topic\": \"Basic biology: cells and photosynthesis\",\n  \"syllabus\": \"Mitochondria, nucleus, cell membrane\",\n  \"instruction\": \"Generate clear multiple-choice questions.\",\n  \"question_count\": 5,\n  \"duration_minutes\": 5,\n  \"difficulty\": \"Easy\",\n  \"provider\": \"gemini\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/ai/generate-quiz/", "host": ["{{baseUrl}}"], "path": ["ai", "generate-quiz", ""] },
+            "description": "Returns 503 until GEMINI_API_KEY (or ANTHROPIC_API_KEY for the claude provider) is configured."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8000/api" }
+  ]
+}

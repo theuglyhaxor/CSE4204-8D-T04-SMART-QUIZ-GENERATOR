@@ -106,7 +106,7 @@ This university project was created by team **CSE4204-8D-T04**.
 |-----------|-----------|
 | Framework | Django 4.2 |
 | API | Django REST Framework (DRF) |
-| Authentication | Django REST Framework Token |
+| Authentication | JWT — djangorestframework-simplejwt (access + refresh, blacklist) |
 | Database | MySQL 5.7+ / MariaDB 10.3+ |
 | Language | Python 3.9+ |
 | AI Integration | Google Gemini API (REST) + Anthropic Claude (`anthropic` SDK) |
@@ -173,8 +173,19 @@ CSE4204-8D-T04-SMART-QUIZ-GENERATOR/
 │       ├── settings.py                          # Django settings (AI keys + provider)
 │       ├── urls.py                              # Global URL configuration
 │       └── wsgi.py                              # WSGI configuration
+├── database/
+│   ├── schema.sql                               # Reference DDL (tables, PK/FK, constraints)
+│   ├── seed_data.sql                            # Sample data seed script
+│   └── README.md                                # Database design summary
+├── postman/
+│   ├── Smart_Quiz_Generator.postman_collection.json   # All API requests
+│   ├── Smart_Quiz_Generator.postman_environment.json  # Local environment vars
+│   └── README.md                                # How to run the collection
+├── documentation/
+│   ├── CSE4204-8D-T04_Backend_Progress_Report.md  # Backend progress report
+│   └── CSE4204-8D-T04_SystemDesign.md           # System design document
 ├── docs/
-│   ├── AI_INTEGRATION_GUIDE.md                  # Gemini API integration guide
+│   ├── AI_INTEGRATION.md                         # Gemini/Claude integration guide
 │   ├── BACKEND_API_REFERENCE.md                 # Complete API documentation
 │   ├── DATABASE_ARCHITECTURE.md                 # Database schema details
 │   └── FRONTEND_DEVELOPER_GUIDE.md              # Frontend integration guide
@@ -275,17 +286,21 @@ http://localhost:8000/api/
 
 ### Authentication
 
-All protected endpoints require a token in the Authorization header:
+All protected endpoints require a JWT access token in the Authorization header:
 ```
-Authorization: Token YOUR_AUTH_TOKEN
+Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
+Login/register return both an `access` and a `refresh` token. When the access
+token expires, exchange the refresh token at `POST /auth/token/refresh/` for a
+new access token.
 
 ### Key Endpoints
 
 #### Authentication
 - `POST /auth/register/` - Register new user
-- `POST /auth/login/` - Login and get token
-- `POST /auth/logout/` - Logout and invalidate token
+- `POST /auth/login/` - Login and get access + refresh tokens
+- `POST /auth/token/refresh/` - Exchange a refresh token for a new access token
+- `POST /auth/logout/` - Blacklist the refresh token (logout)
 
 #### Quizzes (Teacher)
 - `GET /quizzes/` - List all quizzes
@@ -331,8 +346,8 @@ Authorization: Token YOUR_AUTH_TOKEN
 **auth_user**
 - Django's user authentication table
 
-**authtoken_token**
-- Token-based authentication
+**token_blacklist_outstandingtoken / token_blacklist_blacklistedtoken**
+- JWT refresh-token tracking and blacklist (logout / rotation)
 
 **For detailed schema, see [DATABASE_ARCHITECTURE.md](docs/DATABASE_ARCHITECTURE.md)**
 
@@ -623,7 +638,8 @@ You should see Django running on `http://127.0.0.1:8001/`.
 
 ### 8. Register and log in
 
-Use the auth endpoints to create a teacher or student account and get a token.
+Use the auth endpoints to create a teacher or student account and get JWT tokens
+(`access` + `refresh`).
 
 ```powershell
 $register = '{"username":"teacher1","password":"Test@123","role":"teacher"}'
@@ -633,10 +649,10 @@ $login = '{"username":"teacher1","password":"Test@123"}'
 Invoke-WebRequest -Method POST -ContentType "application/json" -Body $login http://127.0.0.1:8001/api/auth/login/ | Select-Object -ExpandProperty Content
 ```
 
-Use the returned token in later requests:
+Use the returned `access` token in later requests:
 
 ```powershell
-$headers = @{ Authorization = "Token YOUR_TOKEN" }
+$headers = @{ Authorization = "Bearer YOUR_ACCESS_TOKEN" }
 Invoke-WebRequest -Headers $headers http://127.0.0.1:8001/api/quizzes/ | Select-Object -ExpandProperty Content
 ```
 
@@ -679,7 +695,7 @@ If `GEMINI_API_KEY` is not set, the response will be `503` and the body will con
 #### 5. Verify document parsing
 
 ```powershell
-$headers = @{ Authorization = "Token YOUR_TOKEN" }
+$headers = @{ Authorization = "Bearer YOUR_ACCESS_TOKEN" }
 $files = @{ file = Get-Item .\sample.txt }
 Invoke-RestMethod -Method POST -Headers $headers -Form $files http://127.0.0.1:8001/api/documents/parse/
 ```
@@ -811,7 +827,7 @@ See [backend/ai_integration/README.md](backend/ai_integration/README.md) and
 
 ## Important notes
 
-- The backend currently uses `AllowAny` for API access, so authentication is still missing.
-- Use the sample SQL script at the project root to seed a local testing database.
+- Authentication is implemented: JWT (access + refresh) with role-based access (teacher/student). Protected endpoints require `Authorization: Bearer <access_token>`.
+- Use the seed script in [`database/seed_data.sql`](database/seed_data.sql) to populate a local testing database.
 - The current backend is designed for local development and should be hardened before production deployment.
 

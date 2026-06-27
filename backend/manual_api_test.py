@@ -87,7 +87,7 @@ def http(method, path, token=None, json_body=None, multipart=None):
     data = None
 
     if token:
-        headers["Authorization"] = f"Token {token}"
+        headers["Authorization"] = f"Bearer {token}"
 
     if multipart is not None:
         # multipart = {"field": (filename, bytes, content_type)}
@@ -159,9 +159,11 @@ def test_registration():
         "role": "teacher",
     })
     teacher_token = None
-    if code == 201 and body.get("user", {}).get("role") == "teacher" and body.get("token"):
-        teacher_token = body["token"]
-        ok(f"Registered teacher '{teacher_user}' (id={body['user']['id']}, token issued)")
+    teacher_refresh = None
+    if code == 201 and body.get("user", {}).get("role") == "teacher" and body.get("access"):
+        teacher_token = body["access"]
+        teacher_refresh = body.get("refresh")
+        ok(f"Registered teacher '{teacher_user}' (id={body['user']['id']}, JWT access + refresh issued)")
     else:
         fail(f"Teacher registration failed: HTTP {code} -> {body}")
 
@@ -172,9 +174,11 @@ def test_registration():
         "role": "student",
     })
     student_token = None
-    if code == 201 and body.get("user", {}).get("role") == "student" and body.get("token"):
-        student_token = body["token"]
-        ok(f"Registered student '{student_user}' (id={body['user']['id']}, token issued)")
+    student_refresh = None
+    if code == 201 and body.get("user", {}).get("role") == "student" and body.get("access"):
+        student_token = body["access"]
+        student_refresh = body.get("refresh")
+        ok(f"Registered student '{student_user}' (id={body['user']['id']}, JWT access + refresh issued)")
     else:
         fail(f"Student registration failed: HTTP {code} -> {body}")
 
@@ -195,6 +199,8 @@ def test_registration():
         "password": password,
         "teacher_token": teacher_token,
         "student_token": student_token,
+        "teacher_refresh": teacher_refresh,
+        "student_refresh": student_refresh,
     }
 
 
@@ -204,8 +210,8 @@ def test_login(ctx):
         "username": ctx["teacher_user"],
         "password": ctx["password"],
     })
-    if code == 200 and body.get("token"):
-        ok(f"Login succeeds with correct password (role={body['user']['role']})")
+    if code == 200 and body.get("access") and body.get("refresh"):
+        ok(f"Login succeeds with correct password (role={body['user']['role']}, JWT pair issued)")
     else:
         fail(f"Login with correct password failed: HTTP {code} -> {body}")
 
@@ -254,10 +260,11 @@ def test_password_change(ctx):
         "username": ctx["teacher_user"],
         "password": new_password,
     })
-    if code == 200 and body.get("token"):
+    if code == 200 and body.get("access"):
         ok("New password works via the login API (HTTP 200)")
         ctx["password"] = new_password
-        ctx["teacher_token"] = body["token"]
+        ctx["teacher_token"] = body["access"]
+        ctx["teacher_refresh"] = body.get("refresh")
     else:
         fail(f"New password login failed: HTTP {code} -> {body}")
 
@@ -442,8 +449,50 @@ def test_ai_generation(ctx):
         fail(f"AI generation failed: HTTP {code} -> {body}")
 
 
+def test_jwt_refresh_and_logout(ctx):
+    section("9. JWT refresh + logout (token blacklist)")
+
+    # Refresh: exchange a valid refresh token for a new access token.
+    refresh = ctx.get("student_refresh")
+    if refresh:
+        code, body = http("POST", "/auth/token/refresh/", json_body={"refresh": refresh})
+        if code == 200 and body.get("access"):
+            ok("Refresh token exchanged for a new access token (HTTP 200)")
+        else:
+            fail(f"Token refresh failed: HTTP {code} -> {body}")
+    else:
+        skip("No student refresh token captured; skipping refresh check")
+
+    # Logout with no refresh token in the body -> 400.
+    code, _ = http("POST", "/auth/logout/", token=ctx.get("teacher_token"))
+    if code == 400:
+        ok("Logout without a refresh token correctly rejected (HTTP 400)")
+    else:
+        fail(f"Logout without refresh should be 400, got HTTP {code}")
+
+    # Logout: blacklist the teacher's refresh token.
+    teacher_refresh = ctx.get("teacher_refresh")
+    if not teacher_refresh:
+        skip("No teacher refresh token captured; skipping logout check")
+        return
+
+    code, body = http("POST", "/auth/logout/", token=ctx.get("teacher_token"),
+                      json_body={"refresh": teacher_refresh})
+    if code == 200:
+        ok("Logout succeeded and refresh token blacklisted (HTTP 200)")
+    else:
+        fail(f"Logout failed: HTTP {code} -> {body}")
+
+    # The blacklisted refresh token must no longer work.
+    code, _ = http("POST", "/auth/token/refresh/", json_body={"refresh": teacher_refresh})
+    if code == 401:
+        ok("Blacklisted refresh token can no longer be used (HTTP 401)")
+    else:
+        fail(f"Blacklisted refresh should be 401, got HTTP {code}")
+
+
 def cleanup(ctx):
-    section("9. Cleanup")
+    section("10. Cleanup")
     for key in ("quiz_id", "ai_quiz_id"):
         quiz_id = ctx.get(key)
         if not quiz_id:
@@ -478,6 +527,7 @@ def main():
     test_student_flow(ctx)
     test_document_parse(ctx)
     test_ai_generation(ctx)
+    test_jwt_refresh_and_logout(ctx)
     cleanup(ctx)
     _summary(start)
     sys.exit(1 if failed else 0)

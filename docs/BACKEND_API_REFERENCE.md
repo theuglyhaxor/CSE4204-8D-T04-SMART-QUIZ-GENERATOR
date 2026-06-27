@@ -29,26 +29,59 @@ This backend is the source of truth for quiz data and scoring. It stores quizzes
 
 ## Authentication and role-based access
 
-Authentication is now enabled through DRF tokens.
+Authentication uses **JWT** (`djangorestframework-simplejwt`). Each login or
+registration returns a short-lived **access** token and a longer-lived
+**refresh** token. The user's role is embedded as a claim in the JWT.
+
+- Access token lifetime: **60 minutes**
+- Refresh token lifetime: **1 day** (rotates on refresh; the previous refresh
+  token is blacklisted)
 
 ### Auth endpoints
 
-- `POST /api/auth/register/` — create a user and assign either `teacher` or `student` role.
-- `POST /api/auth/login/` — authenticate a user and return a token.
+- `POST /api/auth/register/` — create a user, assign `teacher`/`student`, return `{access, refresh, user}`.
+- `POST /api/auth/login/` — authenticate, return `{access, refresh, user}`.
+- `POST /api/auth/token/refresh/` — exchange `{refresh}` for a new `{access}`.
+- `POST /api/auth/logout/` — blacklist the supplied `{refresh}` token (requires a valid `Bearer` access header).
 
 ### Role behavior
 
 - **Teacher** accounts can create, update, delete, and inspect quizzes, questions, attempts, and AI-generated quizzes.
 - **Student** accounts can fetch student-safe questions and submit quiz attempts.
-- All protected endpoints require `Authorization: Token <token>`.
+- All protected endpoints require `Authorization: Bearer <access_token>`.
 
-### Example auth request
+### Example login request
 
 ```json
 {
   "username": "teacher1",
   "password": "Test@123"
 }
+```
+
+### Example login response
+
+```json
+{
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": { "id": 1, "username": "teacher1", "role": "teacher" }
+}
+```
+
+### Using the token
+
+Send the access token on every protected request:
+
+```
+Authorization: Bearer <access_token>
+```
+
+When the access token expires (HTTP 401), get a new one without re-login:
+
+```json
+POST /api/auth/token/refresh/
+{ "refresh": "<refresh_token>" }
 ```
 
 ---

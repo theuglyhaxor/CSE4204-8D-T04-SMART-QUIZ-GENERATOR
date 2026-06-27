@@ -1,7 +1,7 @@
 # 2. ENTITY RELATIONSHIP DIAGRAM (ER DIAGRAM)
 ## CSE4204-8D-T04 Smart Quiz Generator
 
-**Description:** The ER Diagram represents the database schema of the Smart Quiz Generator. It combines the **currently implemented** Django models with the **planned** entities from the SRS (clearly marked). Authentication and role management reuse Django's built-in `auth_user`, `auth_group`, and `authtoken_token` tables.
+**Description:** The ER Diagram represents the database schema of the Smart Quiz Generator. It combines the **currently implemented** Django models with the **planned** entities from the SRS (clearly marked). Authentication uses **JWT** (`djangorestframework-simplejwt`); role management reuses Django's built-in `auth_user` and `auth_group` tables, and the JWT refresh-token blacklist is stored in `token_blacklist_outstandingtoken` / `token_blacklist_blacklistedtoken`.
 
 > **Notation:** `PK` = Primary Key · `FK` = Foreign Key · `UK` = Unique Key.
 > **Status tags:** ✅ = implemented in [`models.py`](../backend/quiz_api/models.py) / Django · 🟡 = planned per SRS, not yet in code.
@@ -9,14 +9,14 @@
 **Key Entities:**
 - **USER** (`auth_user`) — system users (teachers and students) — *Django built-in* ✅
 - **GROUP** (`auth_group`) — role groups: `teacher` / `student` — *Django built-in* ✅
-- **AUTHTOKEN** (`authtoken_token`) — token-based authentication — *DRF built-in* ✅
+- **OUTSTANDINGTOKEN** (`token_blacklist_outstandingtoken`) — issued JWT refresh tokens; blacklisted ones recorded in `token_blacklist_blacklistedtoken` — *simplejwt* ✅
 - **QUIZ** — quiz metadata and configuration ✅
 - **QUESTION** — MCQ content, options, correct answer, explanation ✅
 - **QUIZATTEMPT** — student submissions, score, and embedded responses ✅
 
 **Key Relationships:**
 - A USER belongs to one or more GROUPs (M:N via Django `auth_user_groups`) ✅
-- A USER has at most one AUTHTOKEN (1:1) ✅
+- A USER can have many JWT refresh tokens tracked for blacklist (1:M) ✅
 - A QUIZ contains many QUESTIONs (1:M) ✅
 - A QUIZ receives many QUIZATTEMPTs (1:M) ✅
 - A USER (teacher) *creates* many QUIZzes (1:M via `created_by`) 🟡 *planned*
@@ -24,7 +24,7 @@
 ```mermaid
 erDiagram
     USER }o--o{ GROUP : "belongs to"
-    USER ||--o| AUTHTOKEN : "has"
+    USER ||--o{ OUTSTANDINGTOKEN : "issues (JWT refresh)"
     USER ||--o{ QUIZ : "creates (planned)"
     QUIZ ||--o{ QUESTION : "contains"
     QUIZ ||--o{ QUIZATTEMPT : "receives"
@@ -43,10 +43,13 @@ erDiagram
         string name UK "teacher or student"
     }
 
-    AUTHTOKEN {
-        string key PK "token string"
-        int user_id FK "1:1 with USER"
-        datetime created
+    OUTSTANDINGTOKEN {
+        int id PK
+        int user_id FK "JWT refresh token owner"
+        string jti UK "JWT token id"
+        text token "encoded refresh token"
+        datetime created_at
+        datetime expires_at
     }
 
     QUIZ {
@@ -91,15 +94,15 @@ erDiagram
 |--------|----------|---------|-------------|--------------|
 | **USER** | `auth_user` | User accounts | `id` | — |
 | **GROUP** | `auth_group` | Role groups (teacher/student) | `id` | — |
-| **AUTHTOKEN** | `authtoken_token` | Auth tokens | `key` | `user_id` |
+| **OUTSTANDINGTOKEN** | `token_blacklist_outstandingtoken` | Issued JWT refresh tokens (blacklist in `token_blacklist_blacklistedtoken`) | `id` | `user_id` |
 | **QUIZ** | `quiz_api_quiz` | Quiz information | `id` | `created_by` 🟡 |
 | **QUESTION** | `quiz_api_question` | Quiz questions | `id` | `quiz_id` |
 | **QUIZATTEMPT** | `quiz_api_quizattempt` | Student submissions | `id` | `quiz_id` |
 
 ## Relationship Descriptions
 
-### 1:1 / 1:0..1
-- **USER ↔ AUTHTOKEN:** Each user has at most one DRF authentication token.
+### 1:M (authentication)
+- **USER → OUTSTANDINGTOKEN:** Each login/refresh issues a JWT refresh token recorded here; logout/rotation moves it to `token_blacklist_blacklistedtoken`. Access tokens are stateless (signed JWTs) and are not stored.
 
 ### 1:M
 - **USER → QUIZ** *(planned)*: A teacher owns/creates many quizzes via `created_by`. **Not yet in code** — the current `Quiz` model has no owner field, so quiz ownership/teacher-isolation (SRS §4.1) is not enforced.

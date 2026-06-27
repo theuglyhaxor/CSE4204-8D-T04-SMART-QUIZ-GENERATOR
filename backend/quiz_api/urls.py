@@ -1,7 +1,9 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
     AuthLoginView,
+    AuthLogoutView,
     AuthRegisterView,
     DocumentParseView,
     GeminiGenerateQuizView,
@@ -16,6 +18,8 @@ from .views import (
 urlpatterns = [
     path("auth/register/", AuthRegisterView.as_view(), name="auth-register"),
     path("auth/login/", AuthLoginView.as_view(), name="auth-login"),
+    path("auth/logout/", AuthLogoutView.as_view(), name="auth-logout"),
+    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("quizzes/", QuizViewSet.as_view({"get": "list", "post": "create"}), name="quiz-list"),
     path("quizzes/<int:pk>/", QuizViewSet.as_view({"get": "retrieve", "put": "update", "patch": "partial_update", "delete": "destroy"}), name="quiz-detail"),
     path("quizzes/<int:quiz_id>/questions/", QuizQuestionListCreateView.as_view(), name="quiz-questions"),
