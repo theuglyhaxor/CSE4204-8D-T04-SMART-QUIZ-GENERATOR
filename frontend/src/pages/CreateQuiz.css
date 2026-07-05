@@ -1,0 +1,190 @@
+/* ===================================
+   CREATE QUIZ PAGE
+=================================== */
+
+.createquiz-body{
+    padding:30px;
+    animation:fadeIn .5s ease;
+}
+
+/* ===================================
+   HEADER
+=================================== */
+
+.createquiz-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.createquiz-header h1{
+    font-size:34px;
+    font-weight:700;
+    color:#111827;
+    margin-bottom:8px;
+}
+
+.createquiz-header p{
+    color:#6B7280;
+    font-size:15px;
+}
+
+.sparkle{
+    color:#6366F1;
+}
+
+/* ===================================
+   GRID
+=================================== */
+
+.createquiz-grid{
+
+    display:grid;
+
+    grid-template-columns:420px 1fr;
+
+    gap:25px;
+
+    margin-bottom:25px;
+
+}
+
+/* ===================================
+   LEFT PANEL
+=================================== */
+
+.left-panel{
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+
+    transition:.3s;
+
+}
+
+.left-panel:hover{
+
+    transform:translateY(-4px);
+
+}
+
+/* ===================================
+   RIGHT PANEL
+=================================== */
+
+.right-panel{
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+
+    transition:.3s;
+
+}
+
+.right-panel:hover{
+
+    transform:translateY(-4px);
+
+}
+
+/* ===================================
+   DARK MODE
+=================================== */
+
+body.dark .createquiz-header h1{
+
+    color:#fff;
+
+}
+
+body.dark .createquiz-header p{
+
+    color:#CBD5E1;
+
+}
+
+body.dark .left-panel,
+body.dark .right-panel{
+
+    background:#1F2937;
+
+}
+
+body.dark .left-panel,
+body.dark .right-panel{
+
+    color:white;
+
+}
+
+/* ===================================
+   ANIMATION
+=================================== */
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(15px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* ===================================
+   RESPONSIVE
+=================================== */
+
+@media(max-width:1200px){
+
+    .createquiz-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .createquiz-body{
+
+        padding:18px;
+
+    }
+
+    .createquiz-header h1{
+
+        font-size:28px;
+
+    }
+
+    .left-panel,
+    .right-panel{
+
+        padding:18px;
+
+    }
+
+}

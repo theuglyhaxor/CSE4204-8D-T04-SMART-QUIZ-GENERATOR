@@ -1,0 +1,355 @@
+/* =====================================
+   PROFILE CARD
+===================================== */
+
+.profile-card{
+    display:grid;
+    grid-template-columns:1.4fr 1fr;
+    gap:40px;
+
+    background:#fff;
+    border-radius:22px;
+    padding:35px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.06);
+    transition:.3s;
+}
+
+.profile-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 20px 45px rgba(0,0,0,.10);
+}
+
+/* =====================================
+   LEFT
+===================================== */
+
+.profile-left{
+    display:flex;
+    gap:25px;
+    align-items:flex-start;
+}
+
+.profile-image{
+    width:130px;
+    height:130px;
+
+    border-radius:50%;
+
+    background:linear-gradient(135deg,#4F46E5,#7C3AED);
+
+    color:white;
+
+    font-size:42px;
+    font-weight:700;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    flex-shrink:0;
+}
+
+.profile-info{
+    flex:1;
+}
+
+.name-row{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.name-row h2{
+    font-size:32px;
+    color:#111827;
+}
+
+.premium-badge{
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    background:#EEF2FF;
+    color:#4F46E5;
+
+    padding:7px 14px;
+
+    border-radius:30px;
+
+    font-size:13px;
+    font-weight:600;
+}
+
+.designation{
+    margin:14px 0 22px;
+    color:#6B7280;
+    font-size:16px;
+}
+
+.info-list{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+
+.info-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    color:#374151;
+}
+
+.info-item svg{
+    color:#6366F1;
+}
+
+.edit-btn{
+    margin-top:28px;
+
+    border:none;
+
+    background:#4F46E5;
+
+    color:white;
+
+    padding:13px 26px;
+
+    border-radius:12px;
+
+    font-size:15px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.edit-btn:hover{
+
+    background:#4338CA;
+
+}
+
+/* =====================================
+   RIGHT
+===================================== */
+
+.profile-right{
+
+    border-left:1px solid #E5E7EB;
+
+    padding-left:35px;
+
+}
+
+.profile-right h3{
+
+    font-size:24px;
+
+    color:#111827;
+
+    margin-bottom:8px;
+
+}
+
+.profile-right p{
+
+    color:#6B7280;
+
+    margin-bottom:22px;
+
+}
+
+.progress{
+
+    width:100%;
+
+    height:10px;
+
+    background:#E5E7EB;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+}
+
+.progress-fill{
+
+    height:100%;
+
+    background:linear-gradient(90deg,#4F46E5,#7C3AED);
+
+    border-radius:20px;
+
+}
+
+.progress-value{
+
+    text-align:right;
+
+    font-weight:700;
+
+    color:#111827;
+
+    margin:10px 0 25px;
+
+}
+
+.task-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+}
+
+.task{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    font-size:15px;
+
+}
+
+.task.completed{
+
+    color:#10B981;
+
+}
+
+.task.pending{
+
+    color:#6366F1;
+
+}
+
+.pending-dot{
+
+    width:12px;
+
+    height:12px;
+
+    border:2px solid #6366F1;
+
+    border-radius:50%;
+
+}
+
+/* =====================================
+   DARK MODE
+===================================== */
+
+body.dark .profile-card{
+
+    background:#1E293B;
+
+}
+
+body.dark .profile-right{
+
+    border-left:1px solid #334155;
+
+}
+
+body.dark .name-row h2{
+
+    color:white;
+
+}
+
+body.dark .designation{
+
+    color:#CBD5E1;
+
+}
+
+body.dark .info-item{
+
+    color:#E2E8F0;
+
+}
+
+body.dark .profile-right h3{
+
+    color:white;
+
+}
+
+body.dark .profile-right p{
+
+    color:#CBD5E1;
+
+}
+
+body.dark .progress{
+
+    background:#334155;
+
+}
+
+/* =====================================
+   RESPONSIVE
+===================================== */
+
+@media(max-width:992px){
+
+    .profile-card{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .profile-right{
+
+        border-left:none;
+
+        border-top:1px solid #E5E7EB;
+
+        padding-left:0;
+
+        padding-top:25px;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .profile-left{
+
+        flex-direction:column;
+
+        align-items:center;
+
+        text-align:center;
+
+    }
+
+    .name-row{
+
+        justify-content:center;
+
+    }
+
+    .info-item{
+
+        justify-content:center;
+
+    }
+
+    .edit-btn{
+
+        width:100%;
+
+    }
+
+}

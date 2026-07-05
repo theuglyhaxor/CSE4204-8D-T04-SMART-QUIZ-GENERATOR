@@ -1,0 +1,149 @@
+/* =====================================
+   Bottom Actions
+===================================== */
+
+.bottom-actions{
+
+    margin-top:30px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:18px;
+
+    flex-wrap:wrap;
+
+}
+
+/* Button */
+
+.bottom-actions button{
+
+    border:none;
+
+    border-radius:14px;
+
+    padding:15px 28px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+/* Save */
+
+.draft-btn{
+
+    background:#F3F4F6;
+
+    color:#374151;
+
+}
+
+.draft-btn:hover{
+
+    background:#E5E7EB;
+
+}
+
+/* Preview */
+
+.preview-btn{
+
+    background:white;
+
+    color:#4F46E5;
+
+    border:2px solid #4F46E5;
+
+}
+
+.preview-btn:hover{
+
+    background:#4F46E5;
+
+    color:white;
+
+}
+
+/* Generate */
+
+.generate-final-btn{
+
+    background:linear-gradient(
+    135deg,
+    #6366F1,
+    #8B5CF6
+    );
+
+    color:white;
+
+    box-shadow:0 12px 30px rgba(99,102,241,.35);
+
+}
+
+.generate-final-btn:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 18px 35px rgba(99,102,241,.45);
+
+}
+
+/* Dark Mode */
+
+body.dark .draft-btn{
+
+    background:#1F2937;
+
+    color:white;
+
+}
+
+body.dark .draft-btn:hover{
+
+    background:#374151;
+
+}
+
+body.dark .preview-btn{
+
+    background:#111827;
+
+    border:2px solid #6366F1;
+
+    color:white;
+
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+.bottom-actions{
+
+justify-content:center;
+
+}
+
+.bottom-actions button{
+
+width:100%;
+
+justify-content:center;
+
+}
+
+}

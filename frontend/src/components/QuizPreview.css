@@ -1,0 +1,197 @@
+/* ==========================================
+   QUIZ PREVIEW
+========================================== */
+
+.quiz-preview{
+    display:flex;
+    flex-direction:column;
+    gap:25px;
+}
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.preview-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-bottom:20px;
+    border-bottom:1px solid #E5E7EB;
+}
+
+.preview-header h2{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:26px;
+    color:#111827;
+    font-weight:700;
+}
+
+.preview-header h2 svg{
+    color:#6366F1;
+}
+
+.preview-header p{
+    margin-top:6px;
+    color:#6B7280;
+    font-size:14px;
+}
+
+.status{
+    background:#DCFCE7;
+    color:#16A34A;
+    padding:8px 18px;
+    border-radius:30px;
+    font-size:14px;
+    font-weight:600;
+}
+
+/* ==========================================
+   INFO CARDS
+========================================== */
+
+.preview-info{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+}
+
+.info-card{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    background:#F8FAFC;
+    border-radius:16px;
+    padding:18px;
+    transition:.3s;
+}
+
+.info-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 25px rgba(0,0,0,.08);
+}
+
+.info-card svg{
+    width:42px;
+    height:42px;
+    padding:10px;
+    border-radius:12px;
+    background:#EEF2FF;
+    color:#6366F1;
+}
+
+.info-card h4{
+    font-size:15px;
+    color:#111827;
+    margin-bottom:4px;
+}
+
+.info-card p{
+    font-size:14px;
+    color:#6B7280;
+}
+
+/* ==========================================
+   QUESTION LIST
+========================================== */
+
+.question-list{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+/* ==========================================
+   DARK MODE
+========================================== */
+
+body.dark .preview-header{
+    border-color:#374151;
+}
+
+body.dark .preview-header h2{
+    color:white;
+}
+
+body.dark .preview-header p{
+    color:#CBD5E1;
+}
+
+body.dark .status{
+    background:#14532D;
+    color:#86EFAC;
+}
+
+body.dark .info-card{
+    background:#111827;
+}
+
+body.dark .info-card h4{
+    color:white;
+}
+
+body.dark .info-card p{
+    color:#CBD5E1;
+}
+
+body.dark .info-card svg{
+    background:#1E3A8A;
+    color:#93C5FD;
+}
+
+/* ==========================================
+   ANIMATION
+========================================== */
+
+.preview-header,
+.info-card{
+
+    animation:fadeIn .5s ease;
+
+}
+
+@keyframes fadeIn{
+
+    from{
+        opacity:0;
+        transform:translateY(12px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media(max-width:992px){
+
+    .preview-info{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .preview-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+    .preview-header h2{
+        font-size:22px;
+    }
+
+    .status{
+        align-self:flex-start;
+    }
+
+}

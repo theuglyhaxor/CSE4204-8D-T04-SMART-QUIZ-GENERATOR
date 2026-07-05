@@ -1,0 +1,137 @@
+.category-card{
+
+    width:100%;
+
+}
+
+.category-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+
+}
+
+.category-header h2{
+
+    font-size:22px;
+
+    color:#111827;
+
+}
+
+.category-header span{
+
+    color:#4f46e5;
+
+    cursor:pointer;
+
+    font-size:14px;
+
+    font-weight:600;
+
+}
+
+.category-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:22px;
+
+}
+
+.category-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+.category-info{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.category-info h4{
+
+    color:#111827;
+
+    margin-bottom:4px;
+
+}
+
+.category-info p{
+
+    color:#6b7280;
+
+    font-size:14px;
+
+}
+
+.progress{
+
+    width:100%;
+
+    height:10px;
+
+    background:#e5e7eb;
+
+    border-radius:30px;
+
+    overflow:hidden;
+
+}
+
+.progress-fill{
+
+    height:100%;
+
+    border-radius:30px;
+
+    transition:.4s;
+
+}
+
+.progress-fill:hover{
+
+    filter:brightness(1.1);
+
+}
+
+.purple{
+
+    background:#8b5cf6;
+
+}
+
+.blue{
+
+    background:#3b82f6;
+
+}
+
+.green{
+
+    background:#10b981;
+
+}
+
+.orange{
+
+    background:#f59e0b;
+
+}

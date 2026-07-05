@@ -1,0 +1,426 @@
+/* ==========================================
+   QUIZ CONFIG
+========================================== */
+
+.quiz-config{
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+}
+
+/* ==========================================
+   TITLE
+========================================== */
+
+.config-title{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:10px;
+}
+
+.step-number{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#6366F1,#8B5CF6);
+    color:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:18px;
+    font-weight:700;
+}
+
+.config-title h2{
+    font-size:24px;
+    color:#111827;
+    font-weight:700;
+}
+
+/* ==========================================
+   FORM
+========================================== */
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.form-group label{
+    font-size:15px;
+    font-weight:600;
+    color:#374151;
+}
+
+.form-group label span{
+    color:#EF4444;
+}
+
+/* ==========================================
+   INPUT
+========================================== */
+
+.input-icon{
+    position:relative;
+}
+
+.input-icon input{
+
+    width:100%;
+
+    padding:14px 45px 14px 16px;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:12px;
+
+    font-size:15px;
+
+    transition:.3s;
+
+    outline:none;
+
+}
+
+.input-icon svg{
+
+    position:absolute;
+
+    right:15px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    color:#6366F1;
+
+}
+
+.input-icon input:focus{
+
+    border-color:#6366F1;
+
+    box-shadow:0 0 0 3px rgba(99,102,241,.15);
+
+}
+
+/* ==========================================
+   TEXTAREA
+========================================== */
+
+textarea{
+
+    width:100%;
+
+    resize:none;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:12px;
+
+    padding:15px;
+
+    font-size:15px;
+
+    outline:none;
+
+    transition:.3s;
+
+    font-family:inherit;
+
+}
+
+textarea:focus{
+
+    border-color:#6366F1;
+
+    box-shadow:0 0 0 3px rgba(99,102,241,.15);
+
+}
+
+/* ==========================================
+   SELECT
+========================================== */
+
+select{
+
+    width:100%;
+
+    padding:14px;
+
+    border-radius:12px;
+
+    border:1px solid #E5E7EB;
+
+    outline:none;
+
+    font-size:15px;
+
+    transition:.3s;
+
+    background:white;
+
+}
+
+select:focus{
+
+    border-color:#6366F1;
+
+}
+
+/* ==========================================
+   DIFFICULTY
+========================================== */
+
+.difficulty-buttons{
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+.difficulty-buttons button{
+
+    flex:1;
+
+    border:none;
+
+    padding:12px;
+
+    border-radius:12px;
+
+    background:#F3F4F6;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.difficulty-buttons button:hover{
+
+    background:#E5E7EB;
+
+}
+
+.difficulty-buttons .active{
+
+    background:#6366F1;
+
+    color:white;
+
+}
+
+/* ==========================================
+   COUNTER
+========================================== */
+
+.counter{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:#F9FAFB;
+
+    border-radius:14px;
+
+    padding:10px 15px;
+
+}
+
+.counter button{
+
+    width:38px;
+
+    height:38px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#6366F1;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.counter button:hover{
+
+    background:#4F46E5;
+
+}
+
+.counter span{
+
+    font-size:20px;
+
+    font-weight:700;
+
+    color:#111827;
+
+}
+
+/* ==========================================
+   BUTTON
+========================================== */
+
+.generate-btn{
+
+    width:100%;
+
+    border:none;
+
+    padding:16px;
+
+    border-radius:14px;
+
+    background:linear-gradient(135deg,#6366F1,#8B5CF6);
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:10px;
+
+    cursor:pointer;
+
+    transition:.35s;
+
+}
+
+.generate-btn:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 15px 30px rgba(99,102,241,.35);
+
+}
+
+/* ==========================================
+   NOTE
+========================================== */
+
+.config-note{
+
+    font-size:13px;
+
+    color:#6B7280;
+
+    text-align:center;
+
+    line-height:1.6;
+
+}
+
+/* ==========================================
+   DARK MODE
+========================================== */
+
+body.dark .config-title h2{
+
+    color:white;
+
+}
+
+body.dark .form-group label{
+
+    color:#E5E7EB;
+
+}
+
+body.dark input,
+body.dark textarea,
+body.dark select{
+
+    background:#111827;
+
+    border:1px solid #374151;
+
+    color:white;
+
+}
+
+body.dark input::placeholder,
+body.dark textarea::placeholder{
+
+    color:#94A3B8;
+
+}
+
+body.dark .difficulty-buttons button{
+
+    background:#374151;
+
+    color:white;
+
+}
+
+body.dark .difficulty-buttons .active{
+
+    background:#6366F1;
+
+}
+
+body.dark .counter{
+
+    background:#111827;
+
+}
+
+body.dark .counter span{
+
+    color:white;
+
+}
+
+body.dark .config-note{
+
+    color:#CBD5E1;
+
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media(max-width:768px){
+
+    .difficulty-buttons{
+
+        flex-direction:column;
+
+    }
+
+    .config-title h2{
+
+        font-size:20px;
+
+    }
+
+}

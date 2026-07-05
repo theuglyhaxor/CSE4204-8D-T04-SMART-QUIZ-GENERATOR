@@ -1,0 +1,221 @@
+ /* ==========================================
+   NAVBAR
+========================================== */
+
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 30px;
+    background:rgba(255,255,255,.88);
+    backdrop-filter:blur(15px);
+    position:sticky;
+    top:0;
+    z-index:100;
+    box-shadow:0 5px 20px rgba(0,0,0,.05);
+    transition:.3s;
+}
+
+/* ==========================================
+   LEFT
+========================================== */
+
+.navbar-left{
+    flex:1;
+}
+
+.search-box{
+    display:flex;
+    align-items:center;
+    background:#F3F4F6;
+    border-radius:12px;
+    padding:10px 15px;
+    max-width:380px;
+    transition:.3s;
+}
+
+.search-box:hover{
+    background:#E5E7EB;
+}
+
+.search-box input{
+    border:none;
+    outline:none;
+    background:transparent;
+    margin-left:10px;
+    width:100%;
+    font-size:15px;
+    color:#111827;
+}
+
+.search-box input::placeholder{
+    color:#6B7280;
+}
+
+/* ==========================================
+   RIGHT
+========================================== */
+
+.navbar-right{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+/* ==========================================
+   ICONS
+========================================== */
+
+.nav-icon{
+    width:44px;
+    height:44px;
+    border-radius:12px;
+    background:#F3F4F6;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    position:relative;
+    transition:.3s;
+}
+
+.nav-icon:hover{
+    background:#4F46E5;
+    color:white;
+    transform:translateY(-2px);
+}
+
+.badge{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    width:18px;
+    height:18px;
+    background:#EF4444;
+    color:white;
+    font-size:11px;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+}
+
+/* ==========================================
+   PROFILE
+========================================== */
+
+.profile-box{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#F9FAFB;
+    padding:8px 15px;
+    border-radius:14px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.profile-box:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.profile-avatar{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#4F46E5,#7C3AED);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    font-size:18px;
+    font-weight:700;
+}
+
+.profile-box h4{
+    font-size:15px;
+    color:#111827;
+    margin:0;
+}
+
+.profile-box p{
+    font-size:13px;
+    color:#6B7280;
+    margin-top:3px;
+}
+
+/* ==========================================
+   DARK MODE
+========================================== */
+
+body.dark .navbar{
+    background:#111827;
+}
+
+body.dark .search-box{
+    background:#1F2937;
+}
+
+body.dark .search-box:hover{
+    background:#374151;
+}
+
+body.dark .search-box input{
+    color:white;
+}
+
+body.dark .search-box input::placeholder{
+    color:#CBD5E1;
+}
+
+body.dark .nav-icon{
+    background:#1F2937;
+    color:white;
+}
+
+body.dark .nav-icon:hover{
+    background:#4F46E5;
+}
+
+body.dark .profile-box{
+    background:#1F2937;
+}
+
+body.dark .profile-box h4{
+    color:white;
+}
+
+body.dark .profile-box p{
+    color:#CBD5E1;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media(max-width:768px){
+
+    .search-box{
+        display:none;
+    }
+
+    .profile-box h4,
+    .profile-box p{
+        display:none;
+    }
+
+    .profile-box{
+        padding:6px;
+    }
+
+    .navbar{
+        padding:15px;
+    }
+
+    .navbar-right{
+        gap:10px;
+    }
+
+}

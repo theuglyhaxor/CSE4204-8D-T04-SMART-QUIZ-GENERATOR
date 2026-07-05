@@ -1,0 +1,137 @@
+ /* ===========================
+   GLOBAL
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#F8FAFC;
+    color:#111827;
+    transition:all .3s ease;
+}
+
+/* ===========================
+   DARK MODE
+=========================== */
+
+body.dark{
+    background:#0F172A;
+    color:#F8FAFC;
+}
+
+/* Dashboard */
+
+body.dark .dashboard{
+    background:#0F172A !important;
+}
+
+/* Navbar */
+
+body.dark .navbar{
+    background:#111827 !important;
+    color:white;
+}
+
+/* Sidebar */
+
+body.dark .sidebar{
+    background:#111827 !important;
+    color:white;
+}
+
+body.dark .logo h2,
+body.dark .logo span,
+body.dark .admin-badge{
+    color:white;
+}
+
+body.dark .menu li{
+    color:#CBD5E1;
+}
+
+body.dark .menu li:hover{
+    background:#312E81;
+    color:white;
+}
+
+/* Cards */
+
+body.dark .stat-card,
+body.dark .chart-section,
+body.dark .activity-section,
+body.dark .category-card,
+body.dark .user-table-card,
+body.dark .profile-box{
+    background:#1E293B !important;
+    color:white;
+}
+
+/* Titles */
+
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark h4,
+body.dark h5{
+    color:white;
+}
+
+body.dark p,
+body.dark span{
+    color:#CBD5E1;
+}
+
+/* Search */
+
+body.dark .search-box{
+    background:#374151;
+}
+
+body.dark .search-box input{
+    color:white;
+}
+
+body.dark .search-box input::placeholder{
+    color:#CBD5E1;
+}
+
+/* Icons */
+
+body.dark .nav-icon{
+    background:#1F2937;
+    color:white;
+}
+
+/* Table */
+
+body.dark table{
+    color:white;
+}
+
+body.dark th{
+    background:#334155;
+}
+
+body.dark td{
+    border-color:#475569;
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#6366F1;
+    border-radius:20px;
+}

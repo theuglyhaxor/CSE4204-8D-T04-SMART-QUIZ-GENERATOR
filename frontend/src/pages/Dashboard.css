@@ -1,0 +1,308 @@
+ /* ==========================================
+   DASHBOARD LAYOUT
+========================================== */
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #eef2ff, #f8fafc, #ffffff);
+    overflow-x: hidden;
+}
+
+.dashboard-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 260px;
+    transition: .3s;
+}
+
+.dashboard-body {
+    padding: 30px;
+    animation: fadeIn .6s ease;
+}
+
+/* ==========================================
+   TITLE
+========================================== */
+
+.dashboard-title {
+    margin-bottom: 30px;
+}
+
+.dashboard-title h1 {
+    font-size: 34px;
+    color: #111827;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.dashboard-title p {
+    color: #6b7280;
+    font-size: 15px;
+}
+
+/* ==========================================
+   STAT CARDS
+========================================== */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 22px;
+    margin-bottom: 30px;
+}
+
+.stats-grid>* {
+    transition: .35s;
+}
+
+.stats-grid>*:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 18px 35px rgba(0,0,0,.12);
+}
+
+/* ==========================================
+   CHART + ACTIVITY
+========================================== */
+
+.dashboard-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.chart-section,
+.activity-section {
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(15px);
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    transition: .35s;
+}
+
+.chart-section:hover,
+.activity-section:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,.12);
+}
+
+/* ==========================================
+   BOTTOM AREA
+========================================== */
+
+.bottom-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.bottom-grid>* {
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(15px);
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    transition: .35s;
+}
+
+.bottom-grid>*:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,.12);
+}
+
+/* ==========================================
+   CARD HEADER
+========================================== */
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card-header h3 {
+    font-size: 20px;
+    color: #111827;
+    font-weight: 600;
+}
+
+.card-header span {
+    color: #4f46e5;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* ==========================================
+   BUTTONS
+========================================== */
+
+button {
+    cursor: pointer;
+    transition: .3s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   LINKS
+========================================== */
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ==========================================
+   CUSTOM SCROLLBAR
+========================================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #6366f1;
+    border-radius: 50px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4338ca;
+}
+
+/* ==========================================
+   FADE ANIMATION
+========================================== */
+
+@keyframes fadeIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width:1200px){
+
+.stats-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+.dashboard-row{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+@media (max-width:992px){
+
+.dashboard{
+
+flex-direction:column;
+
+}
+
+.dashboard-content{
+
+margin-left:0;
+
+}
+
+.stats-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+.dashboard-row{
+
+grid-template-columns:1fr;
+
+}
+
+.bottom-grid{
+
+display:flex;
+
+flex-direction:column;
+
+}
+
+}
+
+@media (max-width:768px){
+
+.dashboard-body{
+
+padding:20px;
+
+}
+
+.dashboard-title h1{
+
+font-size:28px;
+
+}
+
+.stats-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.card-header{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+gap:10px;
+
+}
+
+}
+
+@media (max-width:480px){
+
+.dashboard-body{
+
+padding:15px;
+
+}
+
+.dashboard-title h1{
+
+font-size:24px;
+
+}
+
+.dashboard-title p{
+
+font-size:14px;
+
+}
+
+}

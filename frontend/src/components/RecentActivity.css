@@ -1,0 +1,187 @@
+/* ===================================
+   RECENT ACTIVITY
+=================================== */
+
+.recent-activity{
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:25px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.06);
+
+}
+
+.recent-activity h3{
+
+    font-size:24px;
+
+    margin-bottom:25px;
+
+    color:#111827;
+
+}
+
+.activity-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:22px;
+
+}
+
+.activity-item{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:16px;
+
+}
+
+.activity-icon{
+
+    width:48px;
+
+    height:48px;
+
+    border-radius:14px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:white;
+
+    flex-shrink:0;
+
+}
+
+.green{
+
+    background:#10B981;
+
+}
+
+.blue{
+
+    background:#3B82F6;
+
+}
+
+.orange{
+
+    background:#F59E0B;
+
+}
+
+.purple{
+
+    background:#6366F1;
+
+}
+
+.pink{
+
+    background:#EC4899;
+
+}
+
+.activity-info{
+
+    flex:1;
+
+}
+
+.activity-info h4{
+
+    font-size:17px;
+
+    color:#111827;
+
+    margin-bottom:6px;
+
+}
+
+.activity-info p{
+
+    color:#6B7280;
+
+    font-size:14px;
+
+    margin-bottom:6px;
+
+    line-height:1.6;
+
+}
+
+.activity-info span{
+
+    font-size:13px;
+
+    color:#9CA3AF;
+
+}
+
+/* ===========================
+   Dark Mode
+=========================== */
+
+body.dark .recent-activity{
+
+    background:#1E293B;
+
+}
+
+body.dark .recent-activity h3{
+
+    color:white;
+
+}
+
+body.dark .activity-info h4{
+
+    color:white;
+
+}
+
+body.dark .activity-info p{
+
+    color:#CBD5E1;
+
+}
+
+body.dark .activity-info span{
+
+    color:#94A3B8;
+
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media(max-width:768px){
+
+.activity-item{
+
+align-items:flex-start;
+
+}
+
+.activity-icon{
+
+width:42px;
+
+height:42px;
+
+}
+
+}
