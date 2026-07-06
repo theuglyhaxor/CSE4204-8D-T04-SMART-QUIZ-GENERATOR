@@ -6,7 +6,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   FileText,
+  BookOpen,
   User,
+  Settings,
   LogOut,
 } from "lucide-react";
 
@@ -30,9 +32,21 @@ const Sidebar = () => {
     },
 
     {
+      title: "Question Bank",
+      icon: <BookOpen size={20} />,
+      path: "/question-bank",
+    },
+
+    {
       title: "Profile",
       icon: <User size={20} />,
       path: "/profile",
+    },
+
+    {
+      title: "Settings",
+      icon: <Settings size={20} />,
+      path: "/settings",
     },
 
   ];
@@ -75,25 +89,29 @@ const Sidebar = () => {
 
       <ul className="menu">
 
-        {menuItems.map((item) => (
+        {
 
-          <li
-            key={item.title}
-            className={
-              location.pathname === item.path
-                ? "active"
-                : ""
-            }
-            onClick={() => navigate(item.path)}
-          >
+          menuItems.map((item) => (
 
-            {item.icon}
+            <li
+              key={item.title}
+              className={
+                location.pathname === item.path
+                  ? "active"
+                  : ""
+              }
+              onClick={() => navigate(item.path)}
+            >
 
-            <span>{item.title}</span>
+              {item.icon}
 
-          </li>
+              <span>{item.title}</span>
 
-        ))}
+            </li>
+
+          ))
+
+        }
 
       </ul>
 
@@ -109,13 +127,13 @@ const Sidebar = () => {
 
           <div className="avatar">
 
-            A
+            PT
 
           </div>
 
           <div>
 
-            <h4>Admin User</h4>
+            <h4>Pial Tarofder</h4>
 
             <p>Administrator</p>
 

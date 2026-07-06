@@ -1,0 +1,142 @@
+.settings-card {
+  width: 100%;
+}
+
+.card-header {
+  margin-bottom: 25px;
+}
+
+.card-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 6px;
+}
+
+.card-header p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.settings-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.input-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 12px 14px;
+  transition: all 0.3s ease;
+}
+
+.input-box:hover {
+  border-color: #2563eb;
+}
+
+.input-box svg {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.input-box input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: #111827;
+}
+
+.profile-btn {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.profile-btn button {
+  padding: 12px 30px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.profile-btn button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* Dark Mode */
+
+body.dark .card-header h2 {
+  color: #f9fafb;
+}
+
+body.dark .card-header p {
+  color: #9ca3af;
+}
+
+body.dark .input-group label {
+  color: #e5e7eb;
+}
+
+body.dark .input-box {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+body.dark .input-box input {
+  color: #f9fafb;
+}
+
+body.dark .input-box svg {
+  color: #60a5fa;
+}
+
+body.dark .profile-btn button {
+  background: #3b82f6;
+}
+
+body.dark .profile-btn button:hover {
+  background: #2563eb;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+
+  .settings-form {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-btn {
+    justify-content: center;
+  }
+
+  .profile-btn button {
+    width: 100%;
+  }
+
+}

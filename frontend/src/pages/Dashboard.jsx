@@ -8,6 +8,7 @@ import Chart from "../components/Chart";
 import Activity from "../components/Activity";
 import CategoryCard from "../components/CategoryCard";
 import UserTable from "../components/UserTable";
+import AIIntegrationCard from "../components/AIIntegrationCard";
 
 import {
   Users,
@@ -17,31 +18,44 @@ import {
 } from "lucide-react";
 
 const Dashboard = ({ darkMode, setDarkMode }) => {
+
   return (
+
     <div className="dashboard">
 
       {/* Sidebar */}
+
       <Sidebar />
 
       {/* Main Content */}
+
       <div className="dashboard-content">
 
         {/* Navbar */}
+
         <Navbar
           darkMode={darkMode}
           setDarkMode={setDarkMode}
         />
 
         {/* Dashboard Body */}
+
         <div className="dashboard-body">
 
-          {/* Title */}
+          {/* Page Title */}
+
           <div className="dashboard-title">
+
             <h1>Overview</h1>
-            <p>Monitor your Smart Quiz Generator performance</p>
+
+            <p>
+              Monitor your Smart Quiz Generator performance
+            </p>
+
           </div>
 
           {/* Statistics */}
+
           <div className="stats-grid">
 
             <StatCard
@@ -83,19 +97,25 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
           </div>
 
           {/* Chart + Activity */}
+
           <div className="dashboard-row">
 
             <section className="chart-section">
+
               <Chart />
+
             </section>
 
             <section className="activity-section">
+
               <Activity />
+
             </section>
 
           </div>
 
-          {/* Bottom */}
+          {/* Bottom Section */}
+
           <div className="bottom-grid">
 
             <CategoryCard />
@@ -104,12 +124,18 @@ const Dashboard = ({ darkMode, setDarkMode }) => {
 
           </div>
 
+          {/* AI Integration */}
+
+          <AIIntegrationCard />
+
         </div>
 
       </div>
 
     </div>
+
   );
+
 };
 
 export default Dashboard;

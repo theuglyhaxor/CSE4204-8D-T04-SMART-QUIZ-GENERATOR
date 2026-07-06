@@ -7,13 +7,17 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import UserProfile from "./pages/UserProfile";
 import CreateQuiz from "./pages/CreateQuiz";
+import Settings from "./pages/Settings";
+import QuestionBank from "./pages/QuestionBank";
 
 function App() {
+
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem("theme") === "dark";
   });
 
   useEffect(() => {
+
     if (darkMode) {
       document.body.classList.add("dark");
       localStorage.setItem("theme", "dark");
@@ -21,10 +25,13 @@ function App() {
       document.body.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
+
   }, [darkMode]);
 
   return (
+
     <BrowserRouter>
+
       <Routes>
 
         {/* Dashboard */}
@@ -50,17 +57,6 @@ function App() {
           element={<Register />}
         />
 
-        {/* User Profile */}
-        <Route
-          path="/profile"
-          element={
-            <UserProfile
-              darkMode={darkMode}
-              setDarkMode={setDarkMode}
-            />
-          }
-        />
-
         {/* Create Quiz */}
         <Route
           path="/create-quiz"
@@ -72,9 +68,45 @@ function App() {
           }
         />
 
+        {/* Question Bank */}
+        <Route
+          path="/question-bank"
+          element={
+            <QuestionBank
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+            />
+          }
+        />
+
+        {/* Profile */}
+        <Route
+          path="/profile"
+          element={
+            <UserProfile
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+            />
+          }
+        />
+
+        {/* Settings */}
+        <Route
+          path="/settings"
+          element={
+            <Settings
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+            />
+          }
+        />
+
       </Routes>
+
     </BrowserRouter>
+
   );
+
 }
 
 export default App;

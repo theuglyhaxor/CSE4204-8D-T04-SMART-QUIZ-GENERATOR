@@ -1,4 +1,4 @@
-import React from "react";
+ import React from "react";
 import "./ProfileCard.css";
 
 import {
@@ -19,14 +19,14 @@ const ProfileCard = () => {
       <div className="profile-left">
 
         <div className="profile-image">
-          AH
+          PT
         </div>
 
         <div className="profile-info">
 
           <div className="name-row">
 
-            <h2>Arif Hossain</h2>
+            <h2>Pial Tarofder</h2>
 
             <span className="premium-badge">
               <Crown size={16} />
@@ -36,14 +36,14 @@ const ProfileCard = () => {
           </div>
 
           <p className="designation">
-            Educator & AI Enthusiast
+            CSE Student & Smart Quiz Generator Developer
           </p>
 
           <div className="info-list">
 
             <div className="info-item">
               <Mail size={18} />
-              <span>arif.hossain@example.com</span>
+              <span>pialtarofder00@gmail.com</span>
             </div>
 
             <div className="info-item">
@@ -58,7 +58,7 @@ const ProfileCard = () => {
 
             <div className="info-item">
               <Calendar size={18} />
-              <span>Joined on May 2, 2024</span>
+              <span>Joined on July 2026</span>
             </div>
 
           </div>
@@ -85,13 +85,13 @@ const ProfileCard = () => {
 
           <div
             className="progress-fill"
-            style={{ width: "80%" }}
+            style={{ width: "100%" }}
           ></div>
 
         </div>
 
         <div className="progress-value">
-          80%
+          100%
         </div>
 
         <div className="task-list">
@@ -103,17 +103,17 @@ const ProfileCard = () => {
 
           <div className="task completed">
             <CheckCircle size={18} />
-            <span>Change Profile Picture</span>
+            <span>Profile Picture</span>
           </div>
 
           <div className="task completed">
             <CheckCircle size={18} />
-            <span>Add Bio</span>
+            <span>Bio Added</span>
           </div>
 
-          <div className="task pending">
-            <div className="pending-dot"></div>
-            <span>Connect Social Accounts</span>
+          <div className="task completed">
+            <CheckCircle size={18} />
+            <span>Email Verified</span>
           </div>
 
         </div>
