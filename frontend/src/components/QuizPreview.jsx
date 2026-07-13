@@ -1,117 +1,131 @@
-import React from "react";
+import { CheckCircle2, Download, Rocket, Sparkles, Trash2 } from "lucide-react";
 import "./QuizPreview.css";
 
-import {
-  Sparkles,
-  Clock,
- CheckCircle,
-} from "lucide-react";
+const LETTERS = ["a", "b", "c", "d"];
 
-import QuestionCard from "./QuestionCard";
-
-const QuizPreview = () => {
-  return (
-
-    <div className="quiz-preview">
-
-      {/* Header */}
-
-      <div className="preview-header">
-
-        <div>
-
-          <h2>
-
-            <Sparkles size={22} />
-
-            AI Generated Quiz
-
-          </h2>
-
+/** Right-hand pane of Create Quiz: empty state → generating → generated questions. */
+const QuizPreview = ({ quiz, questions, generating, busy, onPublish, onDiscard, onExport }) => {
+  if (generating) {
+    return (
+      <div className="quiz-preview">
+        <div className="preview-head">
+          <div className="step-number">2</div>
+          <h2>Generating…</h2>
+        </div>
+        <div className="state-block">
+          <div className="spinner" />
           <p>
-            Preview generated questions before publishing
+            The AI is writing your questions.
+            <br />
+            This usually takes a few seconds.
           </p>
-
         </div>
+      </div>
+    );
+  }
 
-        <span className="status">
-          Ready
-        </span>
+  if (!quiz) {
+    return (
+      <div className="quiz-preview">
+        <div className="preview-head">
+          <div className="step-number">2</div>
+          <h2>Preview</h2>
+        </div>
+        <div className="state-block">
+          <Sparkles size={32} color="#c7d2fe" />
+          <h3>Nothing generated yet</h3>
+          <p>
+            Fill in the configuration and hit “Generate Quiz”. Your questions will appear
+            here for review.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
+  return (
+    <div className="quiz-preview">
+      <div className="preview-head">
+        <div className="step-number">2</div>
+        <h2>Review &amp; Publish</h2>
       </div>
 
-      {/* Quiz Info */}
-
-      <div className="preview-info">
-
-        <div className="info-card">
-
-          <Clock size={18} />
-
-          <div>
-
-            <h4>Estimated Time</h4>
-
-            <p>15 Minutes</p>
-
-          </div>
-
-        </div>
-
-        <div className="info-card">
-
-          <CheckCircle size={18} />
-
-          <div>
-
-            <h4>Total Questions</h4>
-
-            <p>10 Questions</p>
-
-          </div>
-
-        </div>
-
+      <div className="banner banner--success">
+        Generated {questions.length} question{questions.length === 1 ? "" : "s"} and saved as a
+        draft. Publish it to make it visible to students.
       </div>
 
-      {/* Questions */}
-
-      <div className="question-list">
-
-        <QuestionCard
-          number="01"
-          question="What is Machine Learning?"
-          option1="A subset of Artificial Intelligence"
-          option2="A programming language"
-          option3="A database software"
-          option4="A networking protocol"
-          answer="A subset of Artificial Intelligence"
-        />
-
-        <QuestionCard
-          number="02"
-          question="Which algorithm is used for classification?"
-          option1="Linear Regression"
-          option2="Decision Tree"
-          option3="K-Means"
-          option4="Apriori"
-          answer="Decision Tree"
-        />
-
-        <QuestionCard
-          number="03"
-          question="Which library is commonly used for Machine Learning in Python?"
-          option1="NumPy"
-          option2="TensorFlow"
-          option3="Pandas"
-          option4="Bootstrap"
-          answer="TensorFlow"
-        />
-
+      <div className="preview-meta">
+        <h3>{quiz.title}</h3>
+        <div className="preview-meta__chips">
+          <span className={`badge-pill badge-pill--${String(quiz.difficulty).toLowerCase()}`}>
+            {quiz.difficulty}
+          </span>
+          <span className="badge-pill badge-pill--draft">{quiz.duration_minutes} min</span>
+          <span className="badge-pill badge-pill--draft">{questions.length} questions</span>
+        </div>
       </div>
 
+      <ol className="preview-questions">
+        {questions.map((question, index) => (
+          <li key={question.id}>
+            <p className="preview-prompt">
+              <span className="preview-num">{index + 1}</span>
+              {question.prompt}
+            </p>
+
+            <ul className="preview-options">
+              {LETTERS.map((letter) => {
+                const isCorrect = String(question.correct_option).toLowerCase() === letter;
+                return (
+                  <li key={letter} className={isCorrect ? "is-correct" : ""}>
+                    <span className="preview-letter">{letter.toUpperCase()}</span>
+                    <span>{question[`option_${letter}`]}</span>
+                    {isCorrect && <CheckCircle2 size={14} className="preview-tick" />}
+                  </li>
+                );
+              })}
+            </ul>
+
+            {question.explanation && (
+              <p className="preview-explanation">Why: {question.explanation}</p>
+            )}
+          </li>
+        ))}
+      </ol>
+
+      <div className="preview-actions">
+        <button type="button" className="btn btn--primary" onClick={onPublish} disabled={busy}>
+          <Rocket size={16} />
+          Publish to students
+        </button>
+
+        <button
+          type="button"
+          className="btn btn--ghost"
+          onClick={() => onExport(true)}
+          disabled={busy}
+        >
+          <Download size={16} />
+          PDF (answer key)
+        </button>
+
+        <button
+          type="button"
+          className="btn btn--ghost"
+          onClick={() => onExport(false)}
+          disabled={busy}
+        >
+          <Download size={16} />
+          PDF (handout)
+        </button>
+
+        <button type="button" className="btn btn--danger" onClick={onDiscard} disabled={busy}>
+          <Trash2 size={16} />
+          Discard
+        </button>
+      </div>
     </div>
-
   );
 };
 

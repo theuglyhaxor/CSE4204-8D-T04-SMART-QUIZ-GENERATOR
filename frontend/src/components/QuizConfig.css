@@ -424,3 +424,133 @@ body.dark .config-note{
     }
 
 }
+/* ==========================================
+   ADDED: file upload, form row, hints, errors
+========================================== */
+
+.form-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+}
+
+.field-hint{
+    font-size:12px;
+    color:#6B7280;
+    margin:-4px 0 8px;
+    line-height:1.5;
+}
+
+.field-error{
+    display:block;
+    margin-top:6px;
+    font-size:12px;
+    color:#DC2626;
+}
+
+/* File picker */
+
+.file-drop{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:14px;
+    border:2px dashed #CBD5E1;
+    border-radius:12px;
+    color:#6B7280;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.file-drop:hover{
+    border-color:#6366F1;
+    color:#6366F1;
+    background:#EEF2FF;
+}
+
+.file-chip{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border:1px solid #C7D2FE;
+    background:#EEF2FF;
+    border-radius:10px;
+    font-size:13px;
+    color:#4338CA;
+}
+
+.file-chip__name{
+    flex:1;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-weight:600;
+}
+
+.file-chip button{
+    border:none;
+    background:transparent;
+    color:#4338CA;
+    cursor:pointer;
+    display:flex;
+    padding:2px;
+    border-radius:4px;
+}
+
+.file-chip button:hover{
+    background:#C7D2FE;
+}
+
+/* Small spinner inside the generate button */
+
+.spinner--sm{
+    width:16px;
+    height:16px;
+    border-width:2px;
+    border-top-color:#fff;
+    border-color:rgba(255,255,255,.35);
+    border-top-color:#fff;
+}
+
+/* Disabled inputs */
+
+.quiz-config input:disabled,
+.quiz-config textarea:disabled,
+.quiz-config select:disabled,
+.quiz-config button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+/* Dark */
+
+body.dark .file-drop{
+    border-color:#334155;
+    color:#94A3B8;
+}
+
+body.dark .file-drop:hover{
+    background:#312E81;
+    border-color:#6366F1;
+    color:#E0E7FF;
+}
+
+body.dark .file-chip{
+    background:#312E81;
+    border-color:#4338CA;
+    color:#E0E7FF;
+}
+
+body.dark .field-hint{
+    color:#94A3B8;
+}
+
+@media(max-width:768px){
+    .form-row{
+        grid-template-columns:1fr;
+    }
+}

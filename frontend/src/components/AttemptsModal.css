@@ -1,0 +1,32 @@
+/* The modal shell (.modal-backdrop, .modal, .modal__head, .modal__body) and the
+   .score chips are global — see styles.css. Only the attempts table lives here. */
+
+.attempts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.attempts-table th {
+  text-align: left;
+  padding: 12px 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sqg-muted);
+  border-bottom: 1px solid var(--sqg-border);
+}
+
+.attempts-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--sqg-border);
+}
+
+.attempts-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+body.dark .attempts-table th,
+body.dark .attempts-table td {
+  border-color: #334155;
+}

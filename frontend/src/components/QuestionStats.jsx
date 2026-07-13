@@ -1,94 +1,61 @@
-import React from "react";
+import { BookOpen, CheckCircle, FolderOpen, ListChecks } from "lucide-react";
 import "./QuestionStats.css";
 
-import {
-  BookOpen,
-  FolderOpen,
-  CheckCircle,
-  AlertTriangle,
-} from "lucide-react";
-
-const QuestionStats = () => {
+/** Counters derived from the real question list — nothing here is hardcoded. */
+const QuestionStats = ({ questions, quizCount }) => {
+  const withExplanation = questions.filter((q) => q.explanation?.trim()).length;
+  const averagePerQuiz = quizCount ? Math.round((questions.length / quizCount) * 10) / 10 : 0;
 
   const stats = [
-
     {
       title: "Total Questions",
-      value: "150",
+      value: questions.length,
       icon: <BookOpen size={28} />,
       color: "#2563eb",
       bg: "#DBEAFE",
     },
-
     {
-      title: "Subjects",
-      value: "8",
+      title: "Quizzes",
+      value: quizCount,
       icon: <FolderOpen size={28} />,
       color: "#10B981",
       bg: "#D1FAE5",
     },
-
     {
-      title: "Easy",
-      value: "60",
+      title: "With Explanation",
+      value: withExplanation,
       icon: <CheckCircle size={28} />,
       color: "#059669",
       bg: "#DCFCE7",
     },
-
     {
-      title: "Hard",
-      value: "35",
-      icon: <AlertTriangle size={28} />,
-      color: "#DC2626",
-      bg: "#FEE2E2",
+      title: "Avg / Quiz",
+      value: averagePerQuiz,
+      icon: <ListChecks size={28} />,
+      color: "#D97706",
+      bg: "#FEF3C7",
     },
-
   ];
 
   return (
-
     <div className="question-stats">
-
-      {
-
-        stats.map((item, index) => (
-
+      {stats.map((item) => (
+        <div className="question-stat-card" key={item.title}>
           <div
-            className="question-stat-card"
-            key={index}
+            className="question-stat-icon"
+            style={{ background: item.bg, color: item.color }}
           >
-
-            <div
-              className="question-stat-icon"
-              style={{
-                background: item.bg,
-                color: item.color,
-              }}
-            >
-
-              {item.icon}
-
-            </div>
-
-            <div>
-
-              <h4>{item.title}</h4>
-
-              <h2>{item.value}</h2>
-
-            </div>
-
+            {item.icon}
           </div>
 
-        ))
-
-      }
-
+          <div>
+            <h4>{item.title}</h4>
+            <h2>{item.value}</h2>
+          </div>
+        </div>
+      ))}
     </div>
-
   );
-
 };
 
 export default QuestionStats;

@@ -1,301 +1,226 @@
 # Frontend Developer Guide
 
-## Goal
+The frontend **lives in this repository**, at [`frontend/`](../frontend/). It is a React 18 + Vite 5
+single-page app that talks to the Django REST backend.
 
-Build a **separate** frontend application that consumes the Django backend and supports:
-
-- viewing available quizzes
-- creating and editing quizzes
-- taking quizzes
-- reviewing submissions
-- optionally triggering AI-generated quiz creation
-
-> The current repository no longer includes a bundled frontend. This guide describes how to build the UI as an external app or separate folder.
+This guide explains how it is put together and how to extend it.
 
 ---
 
-## Local development setup
+## Running it
 
-### Local services
+```bash
+# terminal 1 — backend
+cd backend
+python manage.py migrate
+python manage.py runserver          # http://127.0.0.1:8000
 
-- Backend API: `http://127.0.0.1:8001/api`
-- Frontend dev server: choose your own port, for example `http://127.0.0.1:3000`
-
-### Environment assumptions
-
-- XAMPP Apache and MySQL are running
-- Django backend is running on port `8001`
-- The frontend is hosted on a separate origin during local development
-
-### CORS configuration
-
-Add your frontend origin to the backend environment:
-
-```powershell
-$env:CORS_ALLOWED_ORIGINS = "http://127.0.0.1:3000,http://localhost:3000"
+# terminal 2 — frontend
+cd frontend
+npm install
+npm run dev                         # http://127.0.0.1:5173
 ```
 
-Restart the backend after changing this value.
+### Why there is no CORS problem in development
 
-### Authentication flow
-
-All protected backend endpoints now require a token.
-
-1. Register a teacher or student account with `POST /api/auth/register/`.
-2. Log in with `POST /api/auth/login/` to receive a token.
-3. Send `Authorization: Token <token>` on all protected requests.
-
-Use the token header in every request to `/api/quizzes/`, `/api/questions/`, `/api/documents/parse/`, `/api/ai/generate-quiz/`, and `/api/quizzes/<id>/submit/`.
-
-### File upload flow
-
-Teachers can upload a PDF or text file with `POST /api/documents/parse/`.
-
-- Send the file as a multipart form field named `file`.
-- Include `Authorization: Token <token>`.
-- The backend returns extracted text, filename, page count, and word count.
-
----
-
-## Recommended frontend stack
-
-You can use any modern UI stack. The simplest options are:
-
-- **React + Vite** for a full SPA
-- **Vue + Vite** for a lightweight SPA
-- **Plain HTML/CSS/JS** if you want a minimal frontend
-
-### Recommended project structure
-
-- `src/api/client.js` — a shared API helper
-- `src/pages/teacher/` — quiz management screens
-- `src/pages/student/` — quiz-taking screens
-- `src/pages/results/` — attempt history and score display
-
----
-
-## API contract summary
-
-### Quiz listing
-
-Use `GET /api/quizzes/` to load the list of quizzes.
-
-### Quiz detail
-
-Use `GET /api/quizzes/<id>/` to fetch metadata for one quiz.
-
-### Questions
-
-- Use `GET /api/quizzes/<id>/questions/` when you need the full question payload including `correct_option` and `explanation`.
-- Use `GET /api/quizzes/<id>/student-questions/` when the student UI must hide answer data.
-
-### Quiz submission
-
-Use `POST /api/quizzes/<id>/submit/` to submit answers.
-
-### AI generation
-
-Use `POST /api/ai/generate-quiz/` to ask the backend to generate a quiz with Gemini.
-
-### Teacher actions
-
-Use:
-
-- `POST /api/quizzes/`
-- `POST /api/quizzes/<id>/questions/`
-- `POST /api/documents/parse/`
-- `GET /api/quizzes/<id>/attempts/`
-
----
-
-## Recommended frontend flow
-
-### 1. Teacher creates a quiz
-
-1. Call `POST /api/quizzes/`
-2. Store the returned `id`
-3. Call `POST /api/quizzes/<id>/questions/` for each question
-
-### 2. Student takes a quiz
-
-1. Call `GET /api/quizzes/`
-2. Select a quiz
-3. Call `GET /api/quizzes/<id>/student-questions/`
-4. Render options as radio buttons or cards
-5. Call `POST /api/quizzes/<id>/submit/`
-
-### 3. Teacher reviews results
-
-1. Call `GET /api/quizzes/<id>/attempts/`
-2. Display scores, attempt count, and stored answer data
-
-### 4. AI-assisted quiz generation
-
-1. Collect topic, difficulty, question count, and instruction.
-2. Call `POST /api/ai/generate-quiz/`
-3. Show the generated quiz before saving or publishing it
-
----
-
-## Expected payload formats
-
-### Quiz object
-
-```json
-{
-  "id": 1,
-  "title": "Biology Basics",
-  "description": "Practice quiz",
-  "difficulty": "Medium",
-  "duration_minutes": 10,
-  "is_active": true,
-  "created_at": "2026-05-25T07:07:21.146673Z",
-  "updated_at": "2026-05-25T07:07:21.146707Z",
-  "question_count": 3
-}
-```
-
-### Full question object
-
-```json
-{
-  "id": 2,
-  "quiz": 2,
-  "prompt": "What is the capital of France?",
-  "option_a": "Rome",
-  "option_b": "Paris",
-  "option_c": "Berlin",
-  "option_d": "Madrid",
-  "correct_option": "B",
-  "explanation": "Paris is the capital of France.",
-  "order": 1
-}
-```
-
-### Student-safe question object
-
-```json
-{
-  "id": 1,
-  "prompt": "What is 2 + 2?",
-  "option_a": "3",
-  "option_b": "4",
-  "option_c": "5",
-  "option_d": "6",
-  "order": 1
-}
-```
-
-### Submission payload
-
-```json
-{
-  "student_name": "Student Name",
-  "answers": [
-    {
-      "question": 2,
-      "selected_option": "B"
-    }
-  ]
-}
-```
-
-### Submission response
-
-```json
-{
-  "quiz": 2,
-  "student_name": "Student Name",
-  "score": 1,
-  "total": 1,
-  "percentage": 100.0,
-  "responses": [
-    {
-      "question": 2,
-      "selected_option": "B",
-      "correct_option": "B",
-      "is_correct": true
-    }
-  ],
-  "attempt_id": 2
-}
-```
-
----
-
-## Sample API client
-
-Create one shared helper so all screens use the same base URL.
+[`vite.config.js`](../frontend/vite.config.js) proxies `/api` → `http://127.0.0.1:8000`:
 
 ```js
-const API_BASE_URL = "http://127.0.0.1:8001/api";
-
-export async function fetchJson(path, options = {}) {
-  const token = localStorage.getItem("quiz_token");
-
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Token ${token}` } : {}),
-      ...options.headers,
-    },
-    ...options,
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || `Request failed with status ${response.status}`);
-  }
-
-  return response.json();
+server: {
+  proxy: { '/api': { target: BACKEND, changeOrigin: true } },
 }
+```
+
+The browser therefore only ever sees **one origin** (`:5173`), so cross-origin rules never apply.
+`CORS_ALLOWED_ORIGINS` in the backend only matters when you serve the frontend from a *different*
+origin (e.g. a production deployment).
+
+### Configuration
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `VITE_API_BASE_URL` | `/api` | Where API calls go. Keep the default in dev. Set a full URL (`https://api.example.com/api`) when the backend is deployed elsewhere. |
+| `VITE_BACKEND_URL` | `http://127.0.0.1:8000` | Where the dev proxy forwards `/api`. |
+
+See [`frontend/.env.example`](../frontend/.env.example).
+
+---
+
+## Architecture
+
+```
+src/
+├── api/client.js            # the ONLY place that calls the backend
+├── context/AuthContext.jsx  # session state (user, signIn, signUp, signOut)
+├── components/
+│   ├── ProtectedRoute.jsx   # auth + role gate for a route
+│   ├── TeamFooter.jsx       # identity footer, fed by GET /api/meta/
+│   └── …                    # Sidebar, Navbar, QuizTable, QuizConfig, modals…
+├── pages/
+│   ├── Login.jsx  Register.jsx                           # public
+│   ├── Dashboard.jsx  CreateQuiz.jsx  QuestionBank.jsx   # teacher
+│   ├── StudentHome.jsx  TakeQuiz.jsx  MyAttempts.jsx     # student
+│   └── UserProfile.jsx  Settings.jsx                     # any signed-in user
+├── App.jsx                  # routing + role redirects
+└── styles.css               # design tokens + shared primitives
+```
+
+### Rule: all network access goes through `api/client.js`
+
+Never call `fetch` from a component. The client owns token handling, and bypassing it means bypassing
+automatic refresh.
+
+```js
+import { quizzes, attempts, meta, downloadQuizPdf } from "../api/client";
+
+const list      = await quizzes.list();
+const generated = await quizzes.generate({ topic: "Photosynthesis", question_count: 5 });
+const result    = await quizzes.submit(quizId, [{ question: 1, selected_option: "B" }]);
+const mine      = await attempts.mine();
+const stats     = await meta.stats();
+
+await downloadQuizPdf(quizId, { answers: false });   // triggers a browser download
 ```
 
 ---
 
-## Frontend recommendations
+## Authentication
 
-### Data handling
+The backend issues a JWT **access** token (60 min) and a **refresh** token (1 day, rotating).
 
-- Cache quiz lists and question sets when needed.
-- Show loading and error states clearly.
-- Keep teacher and student flows separate to avoid exposing answer data.
+### What the client does for you
 
-### Security and privacy
+1. Attaches `Authorization: Bearer <access>` to every request.
+2. On a **401**, transparently calls `/auth/token/refresh/`, stores the new pair, and **replays the
+   original request**. Concurrent 401s share a single refresh rather than stampeding the endpoint.
+3. If the refresh *also* fails, it clears storage and fires a `sqg:session-expired` event, which
+   `AuthContext` listens for to drop the session.
 
-- Do not render `correct_option` or `explanation` to student users unless you intentionally want post-submission review mode.
-- Do not store the Gemini API key on the client.
-- Perform validation on both the client and server.
+A component therefore never has to think about token expiry.
 
-### Error handling
+### Session state
 
-Handle these cases in the UI:
+```jsx
+import { useAuth } from "../context/AuthContext";
 
-- `400 Bad Request`
-- `404 Not Found`
-- `500 Internal Server Error`
-- `503 Service Unavailable` when Gemini is not configured
+const { user, loading, isAuthenticated, isTeacher, isStudent, signIn, signUp, signOut } = useAuth();
+// user = { id, username, email, role }
+```
+
+On boot, `AuthContext` calls `GET /auth/me/` to confirm a stored token is still valid, so a stale or
+blacklisted token doesn't render the app as if it were logged in. `loading` is `true` while that check
+is in flight — `ProtectedRoute` waits on it instead of bouncing to `/login` and back.
+
+### Guarding a route
+
+```jsx
+<Route
+  path="/create-quiz"
+  element={
+    <ProtectedRoute role="teacher">
+      <CreateQuiz />
+    </ProtectedRoute>
+  }
+/>
+```
+
+Omit `role` to allow any signed-in user. A signed-in user with the *wrong* role is redirected to their
+own home rather than a dead end.
+
+> **Route guards are convenience, not security.** Every rule is enforced server-side. The guards only
+> avoid showing a user a screen that would fail anyway.
 
 ---
 
-## Suggested implementation checklist
+## Error handling
 
-1. Create a single API helper.
-2. Build a quiz list screen.
-3. Add a teacher quiz creation flow.
-4. Add a question builder flow.
-5. Add a student quiz-taking flow.
-6. Add a score/results view.
-7. Add AI generation form and response handling.
-8. Update `CORS_ALLOWED_ORIGINS` for your frontend host.
+`api/client.js` throws an `ApiError` carrying `.status` and a human-readable `.message`, flattening
+DRF's field errors (`{"username": ["already exists"]}` → `username: already exists`).
+
+```jsx
+try {
+  await quizzes.generate(config);
+} catch (err) {
+  if (err.status === 503) {
+    setError("AI is not configured on the server. Add an API key to backend/.env.");
+  } else {
+    setError(err.message);
+  }
+}
+```
+
+Statuses worth branching on:
+
+| Status | Meaning |
+|---|---|
+| `400` | Validation failed |
+| `401` | Not signed in (the client already tried to refresh) |
+| `403` | Signed in, but wrong role — or not the quiz's owner |
+| `404` | No such quiz/question |
+| `502` | The AI provider returned fewer questions than requested |
+| `503` | AI provider key not configured |
 
 ---
 
-## Important backend notes for the frontend team
+## Key flows
 
-- Teacher and student permissions are now enforced.
-- All protected endpoints require a token from `/api/auth/login/`.
-- Gemini generation requires `GEMINI_API_KEY` on the backend.
-- Production-grade queueing is still future work.
+### Teacher — generate a quiz
 
-The frontend must always send `Authorization: Token <token>` for protected requests.
+1. `QuizConfig` collects topic, difficulty, count, duration, provider, and an optional source document.
+2. If a file was attached, `CreateQuiz` first calls `documents.parse(file)` and feeds the extracted text
+   in as `syllabus`.
+3. `quizzes.generate(payload)` → the backend calls the model, validates the JSON, and **saves the quiz
+   as a draft**, returning `{ quiz, questions }`.
+4. `QuizPreview` renders them for review. The teacher then **publishes**
+   (`quizzes.update(id, { is_active: true })`), exports a PDF, or discards (deletes) it.
+
+New quizzes are **drafts** — invisible to students until published.
+
+### Student — take a quiz
+
+1. `quizzes.studentQuestions(id)` returns the questions **without** `correct_option` or `explanation`.
+   The answer key is never in the browser before submitting.
+2. `TakeQuiz` runs a countdown; at zero it auto-submits whatever has been answered.
+3. `quizzes.submit(id, answers)` scores server-side and returns the score *plus* the correct answers and
+   explanations, which the result screen uses to render the review.
+
+---
+
+## Team identity footer
+
+`TeamFooter` reads `GET /api/meta/`, which is backed by the `TEAM` dict in
+[`backend/smart_quiz_backend/settings.py`](../backend/smart_quiz_backend/settings.py) — the **same**
+source the exported PDF footer uses. Edit the team in that one place and both the app and the PDFs
+update. Never hardcode member names in a component.
+
+```jsx
+<TeamFooter />          {/* full block: members, course, university */}
+<TeamFooter compact />  {/* one line, used on the auth screens */}
+```
+
+---
+
+## Styling
+
+- Design tokens (`--sqg-primary`, `--sqg-muted`, `--sqg-border`, …) and shared primitives
+  (`.btn`, `.banner`, `.badge-pill`, `.spinner`, `.state-block`, `.modal`) live in `src/styles.css`.
+- Per-component CSS sits next to the component.
+- Dark mode is a `body.dark` class toggled in `App.jsx` and persisted to `localStorage`.
+
+**Gotcha:** anything shared across pages must live in `styles.css`, not in a single component's CSS
+file. A page only loads the CSS of the components it actually imports — which is why the student pages
+explicitly `import "./Dashboard.css"`: they reuse its `.dashboard` shell layout but never render
+`Dashboard` itself.
+
+---
+
+## Building for production
+
+```bash
+cd frontend
+npm run build          # → frontend/dist/
+npm run preview        # serve the build locally
+```
+
+Serve `dist/` as static files and set `VITE_API_BASE_URL` to the deployed API's URL. Add that origin to
+the backend's `CORS_ALLOWED_ORIGINS`, since the Vite proxy is no longer sitting in front of it.

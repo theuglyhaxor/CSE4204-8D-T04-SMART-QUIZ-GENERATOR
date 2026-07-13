@@ -1,102 +1,43 @@
- import React from "react";
-import "./Navbar.css";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Moon, Sun } from "lucide-react";
 
-import {
-  Search,
-  Bell,
-  Moon,
-  Sun,
-  ChevronDown,
-} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import "./Navbar.css";
 
 const Navbar = ({ darkMode, setDarkMode }) => {
-
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const handleProfileClick = () => {
-    if (location.pathname === "/profile") {
-      navigate("/");
-    } else {
-      navigate("/profile");
-    }
-  };
+  const { user, isTeacher } = useAuth();
 
   return (
     <div className="navbar">
-
-      {/* Search */}
-
-      <div className="navbar-left">
-
-        <div className="search-box">
-
-          <Search size={18} />
-
-          <input
-            type="text"
-            placeholder="Search quizzes, users..."
-          />
-
-        </div>
-
-      </div>
-
-      {/* Right */}
+      <div className="navbar-left" />
 
       <div className="navbar-right">
-
-        {/* Notification */}
-
-        <div className="nav-icon">
-
-          <Bell size={20} />
-
-          <span className="badge">3</span>
-
-        </div>
-
-        {/* Dark Mode */}
-
         <div
           className="nav-icon"
           onClick={() => setDarkMode(!darkMode)}
-          title={darkMode ? "Light Mode" : "Dark Mode"}
+          title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          role="button"
+          tabIndex={0}
         >
-          {darkMode ? (
-            <Sun size={20} />
-          ) : (
-            <Moon size={20} />
-          )}
+          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
         </div>
-
-        {/* Profile */}
 
         <div
           className="profile-box"
-          onClick={handleProfileClick}
+          onClick={() => navigate("/profile")}
           style={{ cursor: "pointer" }}
         >
-
           <div className="profile-avatar">
-            A
+            {user?.username?.[0]?.toUpperCase() ?? "?"}
           </div>
 
           <div>
-
-            <h4>Admin User</h4>
-
-            <p>Administrator</p>
-
+            <h4>{user?.username}</h4>
+            <p>{isTeacher ? "Teacher" : "Student"}</p>
           </div>
-
-          <ChevronDown size={18} />
-
         </div>
-
       </div>
-
     </div>
   );
 };

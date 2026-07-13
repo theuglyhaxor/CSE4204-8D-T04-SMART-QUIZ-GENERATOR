@@ -1,0 +1,133 @@
+.quiz-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--sqg-border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.quiz-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 820px;
+}
+
+.quiz-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sqg-muted);
+  background: var(--sqg-surface);
+  border-bottom: 1px solid var(--sqg-border);
+  white-space: nowrap;
+}
+
+.quiz-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--sqg-border);
+  vertical-align: middle;
+}
+
+.quiz-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.quiz-table tbody tr:hover {
+  background: #fafbff;
+}
+
+.quiz-table tr.is-busy {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.quiz-table__title {
+  font-weight: 600;
+  color: var(--sqg-text);
+}
+
+.quiz-table__toggle {
+  border: none;
+  cursor: pointer;
+}
+
+.quiz-table__actions-head {
+  text-align: right;
+}
+
+.quiz-table__actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border: 1px solid var(--sqg-border);
+  background: #fff;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sqg-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.icon-btn:hover:not(:disabled) {
+  border-color: var(--sqg-primary);
+  color: var(--sqg-primary);
+  background: #eef2ff;
+}
+
+.icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn--danger:hover:not(:disabled) {
+  border-color: #fecaca;
+  color: var(--sqg-danger);
+  background: #fef2f2;
+}
+
+/* Dark */
+body.dark .quiz-table-wrap {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark .quiz-table th {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark .quiz-table td {
+  border-color: #334155;
+}
+
+body.dark .quiz-table tbody tr:hover {
+  background: #273449;
+}
+
+body.dark .quiz-table__title {
+  color: #f1f5f9;
+}
+
+body.dark .icon-btn {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark .icon-btn:hover:not(:disabled) {
+  background: #312e81;
+  color: #e0e7ff;
+}

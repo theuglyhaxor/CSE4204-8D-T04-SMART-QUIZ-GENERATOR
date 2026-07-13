@@ -1,0 +1,99 @@
+.team-footer {
+  margin-top: 32px;
+  padding: 20px 24px;
+  border-top: 1px solid var(--sqg-border, #e2e8f0);
+  background: var(--sqg-surface, #f8fafc);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--sqg-muted, #64748b);
+}
+
+.team-footer__top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.team-footer__id {
+  font-weight: 700;
+  color: var(--sqg-primary, #4f46e5);
+  letter-spacing: 0.02em;
+}
+
+.team-footer__project {
+  font-weight: 600;
+  color: var(--sqg-text, #0f172a);
+  margin-top: 2px;
+}
+
+.team-footer__org {
+  text-align: right;
+  line-height: 1.6;
+}
+
+.team-footer__members {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px dashed var(--sqg-border, #e2e8f0);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 8px 24px;
+}
+
+.team-footer__members li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.team-footer__name {
+  font-weight: 600;
+  color: var(--sqg-text, #0f172a);
+}
+
+.team-footer__sid {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+.team-footer__role {
+  margin-left: auto;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* Compact variant — a single line, used on auth screens. */
+.team-footer--compact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 24px;
+  padding: 12px;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  font-size: 11px;
+}
+
+.team-footer__sep {
+  opacity: 0.5;
+}
+
+body.dark .team-footer {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark .team-footer__project,
+body.dark .team-footer__name {
+  color: #e2e8f0;
+}
+
+body.dark .team-footer__members {
+  border-top-color: #334155;
+}

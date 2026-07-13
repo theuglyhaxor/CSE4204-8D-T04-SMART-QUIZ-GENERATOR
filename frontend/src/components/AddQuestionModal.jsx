@@ -1,272 +1,164 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
+import { quizzes as quizApi } from "../api/client";
 import "./AddQuestionModal.css";
 
-const AddQuestionModal = ({ isOpen, onClose }) => {
+const LETTERS = ["A", "B", "C", "D"];
 
-  const [formData, setFormData] = useState({
-
-    question: "",
-
-    subject: "Web Development",
-
-    difficulty: "Easy",
-
-    marks: 5,
-
-    optionA: "",
-
-    optionB: "",
-
-    optionC: "",
-
-    optionD: "",
-
-    answer: "A",
-
+/** Create one MCQ against a chosen quiz. */
+const AddQuestionModal = ({ quizzes, defaultQuizId, onClose, onCreated }) => {
+  const [form, setForm] = useState({
+    quiz: defaultQuizId || quizzes[0]?.id || "",
+    prompt: "",
+    option_a: "",
+    option_b: "",
+    option_c: "",
+    option_d: "",
+    correct_option: "A",
+    explanation: "",
   });
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
-  const handleChange = (e) => {
+  const update = (field) => (event) =>
+    setForm((prev) => ({ ...prev, [field]: event.target.value }));
 
-    setFormData({
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
 
-      ...formData,
+    if (!form.quiz) return setError("Pick a quiz.");
+    if (!form.prompt.trim()) return setError("Enter the question.");
 
-      [e.target.name]: e.target.value,
+    const missing = LETTERS.filter((l) => !form[`option_${l.toLowerCase()}`].trim());
+    if (missing.length) return setError(`Fill in option ${missing.join(", ")}.`);
 
-    });
-
-  };
-
-  const handleSubmit = (e) => {
-
-    e.preventDefault();
-
-    alert("Question Added Successfully!");
-
-    onClose();
-
+    setSaving(true);
+    try {
+      // Posting to the quiz-scoped route lets the server assign the question's order.
+      const created = await quizApi.addQuestion(form.quiz, {
+        prompt: form.prompt.trim(),
+        option_a: form.option_a.trim(),
+        option_b: form.option_b.trim(),
+        option_c: form.option_c.trim(),
+        option_d: form.option_d.trim(),
+        correct_option: form.correct_option,
+        explanation: form.explanation.trim(),
+      });
+      onCreated(created);
+    } catch (err) {
+      setError(err.message);
+      setSaving(false);
+    }
   };
 
   return (
-
-    <div className="modal-overlay">
-
-      <div className="question-modal">
-
-        <div className="modal-header">
-
-          <h2>➕ Add New Question</h2>
-
-          <button
-            className="close-btn"
-            onClick={onClose}
-          >
-            ✕
+    <div className="modal-backdrop" onClick={onClose}>
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Add question"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="modal__head">
+          <div>
+            <h2>Add Question</h2>
+            <p>Create a multiple-choice question</p>
+          </div>
+          <button type="button" className="modal__close" onClick={onClose} aria-label="Close">
+            <X size={20} />
           </button>
+        </header>
 
-        </div>
+        <form className="modal__body add-question-form" onSubmit={handleSubmit}>
+          {error && <div className="banner banner--error">{error}</div>}
 
-        <form onSubmit={handleSubmit}>
-
-          <label>Question</label>
-
-          <textarea
-
-            name="question"
-
-            rows="3"
-
-            placeholder="Enter question..."
-
-            value={formData.question}
-
-            onChange={handleChange}
-
-            required
-
-          />
-
-          <div className="two-column">
-
-            <div>
-
-              <label>Subject</label>
-
-              <select
-
-                name="subject"
-
-                value={formData.subject}
-
-                onChange={handleChange}
-
-              >
-
-                <option>Web Development</option>
-
-                <option>Programming</option>
-
-                <option>Database</option>
-
-                <option>Operating System</option>
-
-                <option>Networking</option>
-
-              </select>
-
-            </div>
-
-            <div>
-
-              <label>Difficulty</label>
-
-              <select
-
-                name="difficulty"
-
-                value={formData.difficulty}
-
-                onChange={handleChange}
-
-              >
-
-                <option>Easy</option>
-
-                <option>Medium</option>
-
-                <option>Hard</option>
-
-              </select>
-
-            </div>
-
+          <div className="input-group">
+            <label htmlFor="quiz">Quiz</label>
+            <select id="quiz" value={form.quiz} onChange={update("quiz")} disabled={saving}>
+              {quizzes.map((quiz) => (
+                <option key={quiz.id} value={quiz.id}>
+                  {quiz.title}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <label>Marks</label>
+          <div className="input-group">
+            <label htmlFor="prompt">Question</label>
+            <textarea
+              id="prompt"
+              rows="2"
+              placeholder="What do you want to ask?"
+              value={form.prompt}
+              onChange={update("prompt")}
+              disabled={saving}
+            />
+          </div>
 
-          <input
+          <div className="options-grid">
+            {LETTERS.map((letter) => (
+              <div className="input-group" key={letter}>
+                <label htmlFor={`option-${letter}`}>Option {letter}</label>
+                <input
+                  id={`option-${letter}`}
+                  type="text"
+                  value={form[`option_${letter.toLowerCase()}`]}
+                  onChange={update(`option_${letter.toLowerCase()}`)}
+                  disabled={saving}
+                />
+              </div>
+            ))}
+          </div>
 
-            type="number"
+          <div className="input-group">
+            <label>Correct Answer</label>
+            <div className="correct-toggle">
+              {LETTERS.map((letter) => (
+                <button
+                  key={letter}
+                  type="button"
+                  className={form.correct_option === letter ? "active" : ""}
+                  onClick={() => setForm((p) => ({ ...p, correct_option: letter }))}
+                  disabled={saving}
+                >
+                  {letter}
+                </button>
+              ))}
+            </div>
+          </div>
 
-            name="marks"
+          <div className="input-group">
+            <label htmlFor="explanation">Explanation (optional)</label>
+            <textarea
+              id="explanation"
+              rows="2"
+              placeholder="Why is that the right answer?"
+              value={form.explanation}
+              onChange={update("explanation")}
+              disabled={saving}
+            />
+          </div>
 
-            value={formData.marks}
-
-            onChange={handleChange}
-
-          />
-
-          <label>Option A</label>
-
-          <input
-
-            type="text"
-
-            name="optionA"
-
-            value={formData.optionA}
-
-            onChange={handleChange}
-
-          />
-
-          <label>Option B</label>
-
-          <input
-
-            type="text"
-
-            name="optionB"
-
-            value={formData.optionB}
-
-            onChange={handleChange}
-
-          />
-
-          <label>Option C</label>
-
-          <input
-
-            type="text"
-
-            name="optionC"
-
-            value={formData.optionC}
-
-            onChange={handleChange}
-
-          />
-
-          <label>Option D</label>
-
-          <input
-
-            type="text"
-
-            name="optionD"
-
-            value={formData.optionD}
-
-            onChange={handleChange}
-
-          />
-
-          <label>Correct Answer</label>
-
-          <select
-
-            name="answer"
-
-            value={formData.answer}
-
-            onChange={handleChange}
-
-          >
-
-            <option value="A">Option A</option>
-
-            <option value="B">Option B</option>
-
-            <option value="C">Option C</option>
-
-            <option value="D">Option D</option>
-
-          </select>
-
-          <div className="modal-buttons">
-
-            <button
-              type="button"
-              className="cancel-btn"
-              onClick={onClose}
-            >
-
+          <div className="modal__actions">
+            <button type="button" className="btn btn--ghost" onClick={onClose} disabled={saving}>
               Cancel
-
             </button>
-
-            <button
-              type="submit"
-              className="save-btn"
-            >
-
-              Save Question
-
+            <button type="submit" className="btn btn--primary" disabled={saving}>
+              {saving ? "Saving…" : "Add Question"}
             </button>
-
           </div>
-
         </form>
-
       </div>
-
     </div>
-
   );
-
 };
 
 export default AddQuestionModal;

@@ -95,8 +95,9 @@ graph TB
 - **Permission System:** Role-based access control enforcement
 
 ### 💾 **Data Layer**
-- **MySQL/MariaDB Database:**
-  - auth_user, auth_group, authtoken_token tables
+- **SQLite (default) or MySQL/MariaDB Database** — selected with `DB_ENGINE`:
+  - auth_user, auth_group, auth_user_groups tables
+  - token_blacklist_* tables (JWT refresh-token blacklist)
   - quiz_api_quiz, quiz_api_question tables
   - quiz_api_quizattempt table
   - Indexes and constraints for performance

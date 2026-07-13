@@ -148,6 +148,6 @@ This means a Gemini outage never crashes the app — the teacher gets a clear me
 **Repository:** https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR
 
 **Related Files (GitHub):**
-- Setup details: [AI_INTEGRATION_GUIDE.md](https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR/blob/main/docs/AI_INTEGRATION_GUIDE.md)
+- Setup details: [AI_INTEGRATION.md](https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR/blob/main/docs/AI_INTEGRATION.md)
 - [API Design Document](https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR/blob/main/docs/CSE4204-8D-T04_API-DESIGN.md)
 - [Activity Diagrams](https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR/blob/main/diagrams/CSE4204-8D-T04_ACTIVITY-DIAGRAM.md)

@@ -53,6 +53,12 @@ USE smart_quiz_generator;
 
 -- ---------------------------------------------------------------------
 -- QUIZ — quiz metadata and configuration
+--
+-- created_by  : the teacher who owns the quiz. Only the owner may update or
+--               delete it. NULL-able so pre-existing seeded rows (created before
+--               ownership was introduced) remain valid and editable.
+-- is_active   : FALSE = draft (invisible to students), TRUE = published.
+--               New quizzes default to draft so an empty quiz is never exposed.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS quiz_api_quiz (
     id               INTEGER       NOT NULL AUTO_INCREMENT,
@@ -60,10 +66,15 @@ CREATE TABLE IF NOT EXISTS quiz_api_quiz (
     description      LONGTEXT      NOT NULL,
     difficulty       VARCHAR(50)   NOT NULL DEFAULT 'Medium',
     duration_minutes INTEGER UNSIGNED NOT NULL DEFAULT 5,
-    is_active        TINYINT(1)    NOT NULL DEFAULT 1,
+    is_active        TINYINT(1)    NOT NULL DEFAULT 0,
+    created_by_id    INTEGER       NULL,
     created_at       DATETIME(6)   NOT NULL,
     updated_at       DATETIME(6)   NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    KEY quiz_api_quiz_created_by_id_idx (created_by_id),
+    CONSTRAINT quiz_api_quiz_created_by_id_fk
+        FOREIGN KEY (created_by_id) REFERENCES auth_user (id)
+        ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
@@ -93,10 +104,16 @@ CREATE TABLE IF NOT EXISTS quiz_api_question (
 -- QUIZATTEMPT — student submission with embedded answers (JSON)
 -- 1:M from QUIZ (ON DELETE CASCADE). Answers are stored denormalised in
 -- the `responses` JSON column (no separate answer table by design).
+--
+-- student_id   : the authenticated submitter. Authorisation is checked against
+--                THIS column — a student may only read their own attempts.
+-- student_name : denormalised display label, derived server-side from the
+--                authenticated user. It is never taken from the request body.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS quiz_api_quizattempt (
     id           INTEGER       NOT NULL AUTO_INCREMENT,
     quiz_id      INTEGER       NOT NULL,
+    student_id   INTEGER       NULL,
     student_name VARCHAR(255)  NOT NULL DEFAULT 'Anonymous',
     responses    JSON          NOT NULL,
     score        INTEGER UNSIGNED NOT NULL DEFAULT 0,
@@ -104,16 +121,22 @@ CREATE TABLE IF NOT EXISTS quiz_api_quizattempt (
     created_at   DATETIME(6)   NOT NULL,
     PRIMARY KEY (id),
     KEY quiz_api_quizattempt_quiz_id_idx (quiz_id),
+    KEY quiz_api_quizattempt_student_id_idx (student_id),
     CONSTRAINT quiz_api_quizattempt_quiz_id_fk
         FOREIGN KEY (quiz_id) REFERENCES quiz_api_quiz (id)
+        ON DELETE CASCADE,
+    CONSTRAINT quiz_api_quizattempt_student_id_fk
+        FOREIGN KEY (student_id) REFERENCES auth_user (id)
         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
 -- Relationship summary
 -- =====================================================================
+--   USER (1) ──< QUIZ (M)            via quiz_api_quiz.created_by_id      (owner)
 --   QUIZ (1) ──< QUESTION (M)        via quiz_api_question.quiz_id
 --   QUIZ (1) ──< QUIZATTEMPT (M)     via quiz_api_quizattempt.quiz_id
+--   USER (1) ──< QUIZATTEMPT (M)     via quiz_api_quizattempt.student_id  (submitter)
 --   USER (1) ──< OUTSTANDINGTOKEN    via token_blacklist_outstandingtoken.user_id
 --   USER (M) >──< GROUP (M)          via auth_user_groups
 -- =====================================================================

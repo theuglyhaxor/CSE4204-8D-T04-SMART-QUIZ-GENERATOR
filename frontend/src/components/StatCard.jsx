@@ -5,7 +5,7 @@ const StatCard = ({
   icon,
   title,
   value,
-  growth,
+  caption,
   bgColor,
   iconColor,
 }) => {
@@ -28,9 +28,9 @@ const StatCard = ({
 
         <h2>{value}</h2>
 
-        <p>
-          <span>↑ {growth}</span> from last month
-        </p>
+        {/* Only render a caption when there is something true to say — the old
+            hardcoded "↑ x% from last month" was not backed by any data. */}
+        {caption && <p>{caption}</p>}
 
       </div>
 

@@ -1,141 +1,119 @@
- import React from "react";
-import "./Dashboard.css";
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { BarChart3, FileText, HelpCircle, Users } from "lucide-react";
 
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import StatCard from "../components/StatCard";
-import Chart from "../components/Chart";
-import Activity from "../components/Activity";
-import CategoryCard from "../components/CategoryCard";
-import UserTable from "../components/UserTable";
-import AIIntegrationCard from "../components/AIIntegrationCard";
+import TeamFooter from "../components/TeamFooter";
+import QuizTable from "../components/QuizTable";
 
-import {
-  Users,
-  FileText,
-  HelpCircle,
-  DollarSign,
-} from "lucide-react";
+import { meta, quizzes as quizApi } from "../api/client";
+import "./Dashboard.css";
 
+/** Teacher overview — every number here comes from the API, nothing is hardcoded. */
 const Dashboard = ({ darkMode, setDarkMode }) => {
+  const [stats, setStats] = useState(null);
+  const [quizzes, setQuizzes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [statsData, quizData] = await Promise.all([meta.stats(), quizApi.list()]);
+      setStats(statsData);
+      setQuizzes(quizData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
-
     <div className="dashboard">
-
-      {/* Sidebar */}
-
       <Sidebar />
 
-      {/* Main Content */}
-
       <div className="dashboard-content">
-
-        {/* Navbar */}
-
-        <Navbar
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
-        />
-
-        {/* Dashboard Body */}
+        <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
 
         <div className="dashboard-body">
-
-          {/* Page Title */}
-
           <div className="dashboard-title">
-
             <h1>Overview</h1>
-
-            <p>
-              Monitor your Smart Quiz Generator performance
-            </p>
-
+            <p>Monitor your quizzes, questions and student attempts</p>
           </div>
 
-          {/* Statistics */}
+          {error && <div className="banner banner--error">{error}</div>}
 
-          <div className="stats-grid">
+          {loading ? (
+            <div className="state-block">
+              <div className="spinner" />
+              <p>Loading your dashboard…</p>
+            </div>
+          ) : (
+            <>
+              <div className="stats-grid">
+                <StatCard
+                  icon={<FileText size={30} />}
+                  title="Your Quizzes"
+                  value={stats?.total_quizzes ?? 0}
+                  caption={`${stats?.active_quizzes ?? 0} active`}
+                  bgColor="#EEF2FF"
+                  iconColor="#4F46E5"
+                />
+                <StatCard
+                  icon={<HelpCircle size={30} />}
+                  title="Questions"
+                  value={stats?.total_questions ?? 0}
+                  caption="Across all your quizzes"
+                  bgColor="#ECFDF5"
+                  iconColor="#10B981"
+                />
+                <StatCard
+                  icon={<Users size={30} />}
+                  title="Student Attempts"
+                  value={stats?.total_attempts ?? 0}
+                  caption="Submissions received"
+                  bgColor="#FEF3C7"
+                  iconColor="#F59E0B"
+                />
+                <StatCard
+                  icon={<BarChart3 size={30} />}
+                  title="Average Score"
+                  value={`${stats?.average_score ?? 0}%`}
+                  caption="Across all attempts"
+                  bgColor="#FCE7F3"
+                  iconColor="#DB2777"
+                />
+              </div>
 
-            <StatCard
-              icon={<Users size={30} />}
-              title="Total Users"
-              value="12,845"
-              growth="+12%"
-              bgColor="#EEF2FF"
-              iconColor="#4F46E5"
-            />
+              <section className="dashboard-panel">
+                <div className="panel-head">
+                  <div>
+                    <h2>Your Quizzes</h2>
+                    <p>Publish, export or review results</p>
+                  </div>
+                  <Link to="/create-quiz" className="btn btn--primary">
+                    + Create Quiz
+                  </Link>
+                </div>
 
-            <StatCard
-              icon={<FileText size={30} />}
-              title="Total Quizzes"
-              value="2,540"
-              growth="+18%"
-              bgColor="#ECFDF5"
-              iconColor="#10B981"
-            />
+                <QuizTable quizzes={quizzes} onChange={load} />
+              </section>
 
-            <StatCard
-              icon={<HelpCircle size={30} />}
-              title="Questions"
-              value="18,230"
-              growth="+8%"
-              bgColor="#FEF3C7"
-              iconColor="#F59E0B"
-            />
-
-            <StatCard
-              icon={<DollarSign size={30} />}
-              title="Revenue"
-              value="$24,500"
-              growth="+21%"
-              bgColor="#FCE7F3"
-              iconColor="#DB2777"
-            />
-
-          </div>
-
-          {/* Chart + Activity */}
-
-          <div className="dashboard-row">
-
-            <section className="chart-section">
-
-              <Chart />
-
-            </section>
-
-            <section className="activity-section">
-
-              <Activity />
-
-            </section>
-
-          </div>
-
-          {/* Bottom Section */}
-
-          <div className="bottom-grid">
-
-            <CategoryCard />
-
-            <UserTable />
-
-          </div>
-
-          {/* AI Integration */}
-
-          <AIIntegrationCard />
-
+              <TeamFooter />
+            </>
+          )}
         </div>
-
       </div>
-
     </div>
-
   );
-
 };
 
 export default Dashboard;

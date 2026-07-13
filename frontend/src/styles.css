@@ -2,6 +2,17 @@
    GLOBAL
 =========================== */
 
+:root{
+    --sqg-primary:#4F46E5;
+    --sqg-primary-dark:#4338CA;
+    --sqg-text:#0F172A;
+    --sqg-muted:#64748B;
+    --sqg-border:#E2E8F0;
+    --sqg-surface:#F8FAFC;
+    --sqg-success:#16A34A;
+    --sqg-danger:#DC2626;
+}
+
 *{
     margin:0;
     padding:0;
@@ -134,4 +145,296 @@ body.dark td{
 ::-webkit-scrollbar-thumb{
     background:#6366F1;
     border-radius:20px;
+}
+
+/* ===========================
+   SHARED UI PRIMITIVES
+   Used by the pages that talk to the API: error banners, loading and empty
+   states, and the role/status badges.
+=========================== */
+
+.form-error{
+    background:#FEF2F2;
+    border:1px solid #FECACA;
+    color:#B91C1C;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:13px;
+    margin-bottom:14px;
+}
+
+body.dark .form-error{
+    background:#450A0A;
+    border-color:#7F1D1D;
+    color:#FCA5A5;
+}
+
+.banner{
+    padding:12px 14px;
+    border-radius:10px;
+    font-size:14px;
+    margin-bottom:16px;
+}
+
+.banner--error{
+    background:#FEF2F2;
+    border:1px solid #FECACA;
+    color:#B91C1C;
+}
+
+.banner--success{
+    background:#F0FDF4;
+    border:1px solid #BBF7D0;
+    color:#15803D;
+}
+
+.banner--info{
+    background:#EEF2FF;
+    border:1px solid #C7D2FE;
+    color:#4338CA;
+}
+
+/* Loading */
+
+.route-loading,
+.state-block{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    padding:56px 20px;
+    color:var(--sqg-muted);
+    text-align:center;
+}
+
+.route-loading{
+    min-height:100vh;
+}
+
+.spinner{
+    width:28px;
+    height:28px;
+    border:3px solid var(--sqg-border);
+    border-top-color:var(--sqg-primary);
+    border-radius:50%;
+    animation:sqg-spin .7s linear infinite;
+}
+
+@keyframes sqg-spin{
+    to{ transform:rotate(360deg); }
+}
+
+.state-block h3{
+    font-size:16px;
+    color:var(--sqg-text);
+}
+
+body.dark .state-block h3{
+    color:#F1F5F9;
+}
+
+/* Badges */
+
+.badge-pill{
+    display:inline-block;
+    padding:3px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.02em;
+}
+
+/* Score chips — shared by the teacher's AttemptsModal and the student's MyAttempts. */
+
+.score{
+    font-weight:700;
+    padding:3px 10px;
+    border-radius:999px;
+    font-size:12px;
+}
+
+.score--good{ background:#DCFCE7; color:#166534; }
+.score--ok{ background:#FEF3C7; color:#92400E; }
+.score--poor{ background:#FEE2E2; color:#991B1B; }
+
+.badge-pill--easy{ background:#DCFCE7; color:#166534; }
+.badge-pill--medium{ background:#FEF3C7; color:#92400E; }
+.badge-pill--hard{ background:#FEE2E2; color:#991B1B; }
+.badge-pill--active{ background:#DCFCE7; color:#166534; }
+.badge-pill--draft{ background:#E2E8F0; color:#475569; }
+
+/* ===========================
+   MODAL SHELL
+   Global because both AttemptsModal (teacher dashboard) and AddQuestionModal
+   (question bank) use it, and those two pages never load each other's CSS.
+=========================== */
+
+.modal-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.55);
+    backdrop-filter:blur(4px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000;
+}
+
+.modal{
+    background:#fff;
+    border-radius:16px;
+    width:100%;
+    max-width:700px;
+    max-height:88vh;
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 20px 50px rgba(15,23,42,.25);
+}
+
+.modal__head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    padding:20px 24px;
+    border-bottom:1px solid var(--sqg-border);
+}
+
+.modal__head h2{
+    font-size:18px;
+    color:var(--sqg-text);
+}
+
+.modal__head p{
+    margin-top:4px;
+    font-size:13px;
+    color:var(--sqg-muted);
+}
+
+.modal__close{
+    border:none;
+    background:transparent;
+    color:var(--sqg-muted);
+    cursor:pointer;
+    padding:4px;
+    border-radius:8px;
+    flex-shrink:0;
+    display:flex;
+}
+
+.modal__close:hover{
+    background:var(--sqg-surface);
+    color:var(--sqg-text);
+}
+
+.modal__body{
+    padding:8px 24px 24px;
+    overflow-y:auto;
+}
+
+body.dark .modal{
+    background:#1E293B;
+}
+
+body.dark .modal__head{
+    border-color:#334155;
+}
+
+body.dark .modal__head h2{
+    color:#F1F5F9;
+}
+
+/* Role toggle (register) */
+
+.role-toggle{
+    display:flex;
+    gap:10px;
+}
+
+.role-toggle button{
+    flex:1;
+    padding:10px;
+    border:2px solid var(--sqg-border);
+    background:transparent;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:600;
+    color:var(--sqg-muted);
+    transition:all .2s ease;
+}
+
+.role-toggle button.active{
+    border-color:var(--sqg-primary);
+    background:#EEF2FF;
+    color:var(--sqg-primary);
+}
+
+body.dark .role-toggle button{
+    border-color:#334155;
+    color:#94A3B8;
+}
+
+body.dark .role-toggle button.active{
+    background:#312E81;
+    border-color:var(--sqg-primary);
+    color:#E0E7FF;
+}
+
+/* Generic buttons used by the new pages */
+
+.btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:10px 18px;
+    border:none;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s ease;
+}
+
+.btn:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+}
+
+.btn--primary{
+    background:var(--sqg-primary);
+    color:#fff;
+}
+
+.btn--primary:hover:not(:disabled){
+    background:var(--sqg-primary-dark);
+}
+
+.btn--ghost{
+    background:transparent;
+    border:1px solid var(--sqg-border);
+    color:var(--sqg-text);
+}
+
+.btn--ghost:hover:not(:disabled){
+    border-color:var(--sqg-primary);
+    color:var(--sqg-primary);
+}
+
+.btn--danger{
+    background:transparent;
+    border:1px solid #FECACA;
+    color:var(--sqg-danger);
+}
+
+.btn--danger:hover:not(:disabled){
+    background:#FEF2F2;
+}
+
+body.dark .btn--ghost{
+    border-color:#334155;
+    color:#E2E8F0;
 }

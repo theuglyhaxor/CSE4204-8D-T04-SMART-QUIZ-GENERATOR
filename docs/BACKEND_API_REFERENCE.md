@@ -2,23 +2,47 @@
 
 ## Base URL
 
-Use the following base URL while developing locally:
+While developing locally:
 
-- `http://127.0.0.1:8001/api`
+- `http://127.0.0.1:8000/api`
+
+The frontend calls `/api/...` and the Vite dev server proxies it here, so the browser never makes a
+cross-origin request in development.
+
+## Authentication
+
+Authentication is **JWT** (`djangorestframework-simplejwt`). Register or log in to receive an
+`access` token (60 min) and a `refresh` token (1 day, rotating). Send the access token on every
+protected request:
+
+```
+Authorization: Bearer <access_token>
+```
+
+When the access token expires, exchange the refresh token at `POST /auth/token/refresh/`.
+`POST /auth/logout/` blacklists a refresh token.
+
+## Roles
+
+Every user belongs to exactly one role group: **`teacher`** or **`student`**. Roles are enforced
+server-side on every endpoint. Beyond the role, two ownership rules apply:
+
+- A teacher may only **update or delete quizzes they created** (`Quiz.created_by`).
+- A student may only **read their own attempts** (`QuizAttempt.student`).
 
 ## What the backend does
 
-This backend is the source of truth for quiz data and scoring. It stores quizzes, questions, and student attempts, and it can generate quizzes using Gemini through the server side.
-
-> Use the `.venv` interpreter for all backend commands. The backend must be run with `D:/SMART-QUIZ-GENERATOR/.venv/Scripts/python.exe`, not the system `python` executable.
+This backend is the source of truth for quiz data and scoring. It stores quizzes, questions and student
+attempts, generates quizzes with AI (Gemini or Claude) server-side, and renders quizzes to PDF.
 
 ### Core responsibilities
 
-- Persist quiz metadata.
-- Persist question data and answer explanations.
-- Return student-safe question data for public quiz-taking.
-- Calculate marks and store attempt history.
-- Call Gemini and create generated quizzes and questions.
+- Persist quiz metadata, questions and answer explanations.
+- Enforce role-based access and ownership.
+- Return student-safe question data (answers stripped) for quiz-taking.
+- Calculate scores and store attempt history against the authenticated user.
+- Call the AI provider and create generated quizzes and questions.
+- Render a quiz to PDF, with or without the answer key.
 
 ### Current behavior that has been verified
 
@@ -416,3 +440,113 @@ Use this checklist to confirm the backend is working correctly:
 - Use `POST` for creating quizzes and submitting attempts.
 - Keep teacher and student flows separate in the UI.
 - Do not expose the API key to the client.
+
+---
+
+# Endpoints added in the full-stack release
+
+## `GET /api/meta/` — team identity
+
+Public. Backs the footer in the app **and** the footer stamped onto every exported PDF, so the two can
+never drift apart. Source of truth: `TEAM` in `backend/smart_quiz_backend/settings.py`.
+
+```json
+{
+  "course": "CSE4204 — Mobile Computing Lab",
+  "team_id": "CSE4204-8D-T04",
+  "project": "Smart Quiz Generator",
+  "department": "Department of Computer Science and Engineering",
+  "university": "Northern University of Business and Technology, Khulna",
+  "members": [
+    { "name": "MD Rohan", "student_id": "11220320958", "role": "Backend Developer, Full Stack" }
+  ]
+}
+```
+
+## `GET /api/stats/` — dashboard counters
+
+Requires auth. The shape depends on the caller's role.
+
+**Teacher** (scoped to quizzes they own):
+
+```json
+{
+  "role": "teacher",
+  "total_quizzes": 4,
+  "active_quizzes": 3,
+  "total_questions": 22,
+  "total_attempts": 17,
+  "average_score": 68.4
+}
+```
+
+**Student** (scoped to their own activity):
+
+```json
+{
+  "role": "student",
+  "available_quizzes": 3,
+  "quizzes_taken": 2,
+  "total_attempts": 3,
+  "average_score": 71.5,
+  "best_score": 90.0
+}
+```
+
+## `GET /api/auth/me/` — current user
+
+Requires auth. Used by the frontend to confirm a stored token is still valid on boot.
+
+```json
+{ "id": 7, "username": "teacher1", "email": "t@example.com", "role": "teacher" }
+```
+
+## `GET /api/attempts/me/` — a student's own attempt history
+
+Student only. Returns **only** the caller's attempts — a student can never read another student's
+results through this endpoint.
+
+```json
+[
+  {
+    "id": 12, "quiz": 3, "quiz_title": "Photosynthesis",
+    "student": 9, "student_name": "student1",
+    "score": 4, "total": 5, "percentage": 80.0,
+    "responses": [ /* … */ ],
+    "created_at": "2026-07-13T09:14:22Z"
+  }
+]
+```
+
+## `GET /api/quizzes/{id}/export-pdf/` — download the quiz as a PDF
+
+Returns `application/pdf` as a file attachment.
+
+| Query | Who | Result |
+|---|---|---|
+| *(none)* or `?answers=true` | **teacher** | **Answer key**: correct option highlighted, explanations, and an answer-key page |
+| `?answers=false` | teacher | **Student handout**: questions and options only |
+| *anything* | **student** | Always the **handout** — a student can never obtain the answer key this way |
+
+Rendered by `backend/quiz_api/pdf.py`, the same renderer used by the offline review CLI. Every page
+carries the team identity footer.
+
+```bash
+curl -H "Authorization: Bearer $ACCESS" \
+     http://127.0.0.1:8000/api/quizzes/3/export-pdf/ -o quiz.pdf
+```
+
+---
+
+# Behaviour changes worth knowing
+
+| Change | Why |
+|---|---|
+| A new quiz is a **draft** (`is_active: false`) | Previously it defaulted to active, publishing an empty quiz to students the moment it was created. Publish with `PATCH /quizzes/{id}/ {"is_active": true}`. |
+| `GET /quizzes/` **filters by role** | Students only ever see published quizzes. Teachers see all of theirs, drafts included. |
+| Quizzes have an **owner** (`created_by`) | A teacher may only update or delete quizzes they created — otherwise **403**. |
+| Attempts are bound to the **authenticated user** | `student_name` in the request body is ignored; the server records the logged-in student. A student can no longer submit under someone else's name. |
+| Unknown ids return **404**, not 500 | The quiz-scoped views used an unguarded `Quiz.objects.get()`, which surfaced `DoesNotExist` as a 500. |
+| `correct_option` is **normalised** | `"a"` is accepted and stored as `"A"`. |
+| `order` is **auto-assigned** | Posting to `/quizzes/{id}/questions/` without `order` appends to the end instead of colliding on 1. |
+| Registration enforces the **password policy** | Django's `AUTH_PASSWORD_VALIDATORS` now run on the API, so weak passwords are rejected with a 400. |

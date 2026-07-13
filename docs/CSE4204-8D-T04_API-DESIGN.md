@@ -4,9 +4,9 @@
 **Description:** This document lists every planned/implemented REST endpoint with its purpose, input data, and expected output. Endpoints are grouped by function. All routes are defined in [`backend/quiz_api/urls.py`](../backend/quiz_api/urls.py) and implemented in [`backend/quiz_api/views.py`](../backend/quiz_api/views.py).
 
 ### Conventions
-- **Base URL (dev):** `http://127.0.0.1:8001/api/`
+- **Base URL (dev):** `http://127.0.0.1:8000/api/`
 - **Format:** JSON request/response (file upload uses `multipart/form-data`).
-- **Auth header:** `Authorization: Token <token>` for all protected endpoints.
+- **Auth header:** `Authorization: Bearer <access_token>` for all protected endpoints (JWT).
 - **Roles:** `teacher` and `student`, assigned at registration and enforced by DRF permission classes (`IsTeacherUser`, `IsStudentUser`, `IsTeacherOrStudentUser`).
 - **Status tags:** ✅ implemented · 🟡 planned (in SRS, not yet coded).
 

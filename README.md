@@ -1,134 +1,399 @@
 # SMART QUIZ GENERATOR
 
 **CSE4204-8D-T04** | **Batch 8D** | **Team 04**
+*CSE4204 — Mobile Computing Lab · Department of CSE · Northern University of Business and Technology, Khulna*
 
-**SMART QUIZ GENERATOR** is an intelligent, role-based quiz management system that streamlines the process of creating, administering, and evaluating quizzes. The system leverages AI technology — with **two interchangeable providers, Google Gemini and Anthropic Claude** — to automatically generate quiz questions from various document formats while providing a secure, user-friendly platform for educators and students.
+**SMART QUIZ GENERATOR** is a role-based quiz platform. Teachers create quizzes — by hand or by
+generating them from a topic or an uploaded document with **AI (Google Gemini or Anthropic Claude)** —
+publish them, and export them as **print-ready PDFs**. Students take those quizzes in the browser and
+get scored instantly with per-question explanations.
 
-> 📌 **All AI logic lives in one place:** the [`backend/ai_integration/`](backend/ai_integration/) package. See its [README](backend/ai_integration/README.md) for the full design.
+It is a complete stack: **React (Vite) frontend + Django REST backend + SQL database**, wired together
+and covered by tests.
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Project Overview](#project-overview)
-- [Team Information](#team-information)
-- [Key Features](#key-features)
+- [Screens & Features](#screens--features)
+- [Team](#team)
 - [Technology Stack](#technology-stack)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [How the Pieces Fit Together](#how-the-pieces-fit-together)
+- [API Reference](#api-reference)
+- [PDF Export](#pdf-export)
+- [AI Integration](#ai-integration)
+- [Database](#database)
+- [Testing](#testing)
 - [Repository Structure](#repository-structure)
-- [Getting Started](#getting-started)
-- [API Documentation](#api-documentation)
-- [Database Schema](#database-schema)
-- [Deployment](#deployment)
+- [Documentation](#documentation)
 
 ---
 
-## Project Overview
+## Screens & Features
 
-### Objectives
+### Teacher
 
-- Enable efficient quiz creation through both manual input and AI-powered automatic generation from documents
-- Implement secure role-based access control with distinct teacher and student workflows
-- Provide intelligent question generation using Gemini or Claude AI (provider is configurable)
-- Facilitate secure student assessment with real-time scoring and tracking
-- Support multiple file formats (PDF, TXT, MD, CSV, JSON) for document-based question generation
-- Deliver comprehensive REST API endpoints for seamless third-party integration
+| Screen | What it does |
+|---|---|
+| **Dashboard** (`/`) | Live counters (quizzes, questions, attempts, average score) and the quiz table: publish/unpublish, export PDF, view student results, delete. |
+| **Create Quiz** (`/create-quiz`) | Configure a quiz (topic, difficulty, count, duration, provider), optionally upload a **PDF/TXT/MD/CSV/JSON** source document, then generate with AI. Review the questions, then publish, export, or discard. |
+| **Question Bank** (`/question-bank`) | Every question across your quizzes. Filter by quiz, search, add a question manually, delete. |
+| **Profile / Settings** | Account details and your activity totals. |
 
-### Problem Statement
+### Student
 
-Traditional quiz creation and administration processes are time-consuming and resource-intensive. Educators spend significant time manually creating questions and managing student assessments. Without proper centralized platform and role-based access control, institutions lack secure mechanisms to manage the complete quiz lifecycle with intelligent automation.
+| Screen | What it does |
+|---|---|
+| **Quizzes** (`/student`) | Every quiz a teacher has **published**, with your personal stats (taken, average, best). |
+| **Take Quiz** (`/quiz/:id`) | Answer the quiz with a live countdown timer (auto-submits at zero) and a progress bar. Correct answers are **never sent to the browser** before submitting. |
+| **Results** | Instant score, plus a per-question review showing what you chose, the right answer, and why. |
+| **My Attempts** (`/attempts`) | Your full attempt history. Students only ever see their own. |
 
-### Key Benefits
+### Security model
 
-✅ **Automated Question Generation** - Leverage AI to extract questions from documents  
-✅ **Role-Based Access Control** - Secure separation between teacher and student workflows  
-✅ **Multi-Format Support** - Parse PDF, TXT, Markdown, CSV, and JSON files  
-✅ **Real-Time Scoring** - Instant feedback and score calculation  
-✅ **API-First Design** - Easy integration with frontend apps and third-party services  
-✅ **Secure Authentication** - Token-based auth with encrypted credentials  
+- **JWT auth** (access + refresh) with automatic, transparent token refresh in the frontend, and refresh-token blacklisting on logout.
+- **Role-based access** (`teacher` / `student`), enforced on the server for *every* endpoint — the frontend guards are a convenience, not the control.
+- **Quiz ownership** — a teacher can only modify or delete quizzes they created.
+- **Attempts are bound to the authenticated user** — a student cannot submit an attempt under someone else's name.
+- **Draft by default** — a new quiz is invisible to students until explicitly published.
 
 ---
 
-## Development Team Details
+## Team
 
-This university project was created by team **CSE4204-8D-T04**.
-
-### Team Members
-
-| No. | Name | Student ID | Role / Responsibility | Email |
+| No. | Name | Student ID | Role | Email |
 |---|---|---|---|---|
-| 1 | MD Rohan | 11220320958 | Backend Developer, Full Stack Development | therohansec@gmail.com |
+| 1 | MD Rohan | 11220320958 | Backend Developer, Full Stack | therohansec@gmail.com |
 | 2 | Sharmin Nahar Tumpa | 11220320962 | AI Integration | tumpa540264@gmail.com |
 | 3 | Pial Tarofdar | 11220320965 | Frontend Developer | pialtarofdar55@gmail.com |
-| 4 | Sanjana Athoy | 11220320953 | Overall Technical Help | sanjanaathoy55@gmail.com |
+| 4 | Sanjana Athoy | 11220320953 | Technical Support | sanjanaathoy55@gmail.com |
 
----
-
-## Key Features
-
-### For Teachers
-
-- ✅ Create, update, and delete quizzes
-- ✅ Add questions with multiple-choice options
-- ✅ Generate questions automatically from uploaded documents
-- ✅ Set quiz difficulty levels and time duration
-- ✅ Activate/deactivate quizzes
-- ✅ Review all student submissions and attempt history
-- ✅ Analyze student performance data
-
-### For Students
-
-- ✅ View list of active quizzes
-- ✅ Take quizzes without seeing correct answers
-- ✅ Submit responses with instant scoring
-- ✅ View scores and performance feedback
-- ✅ Track progress across multiple quizzes
-- ✅ Review explanations for correct answers
-
-### System Features
-
-- ✅ AI-powered quiz generation from documents
-- ✅ Support for PDF, TXT, Markdown, CSV, JSON formats
-- ✅ Pluggable AI providers — Google Gemini (default) and Anthropic Claude
-- ✅ Per-request or global provider selection (`provider` field / `AI_PROVIDER` env)
-- ✅ Token-based authentication and authorization
-- ✅ RESTful API endpoints with comprehensive documentation
-- ✅ Role-based access control (Teacher/Student)
-- ✅ Real-time quiz scoring and result calculation
-- ✅ Complete attempt history and audit trail
+> The team identity is defined **once**, in `TEAM` in [`backend/smart_quiz_backend/settings.py`](backend/smart_quiz_backend/settings.py).
+> It is served at `GET /api/meta/` and is stamped onto the footer of every exported PDF and the footer of
+> every screen in the app — so it can never drift out of sync.
 
 ---
 
 ## Technology Stack
 
-### Backend
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 18, Vite 5, React Router 7, lucide-react |
+| **Backend** | Django 4.2, Django REST Framework |
+| **Auth** | JWT — `djangorestframework-simplejwt` (access + refresh + blacklist) |
+| **Database** | SQLite (default, zero-setup) **or** MySQL 5.7+ / MariaDB 10.3+ |
+| **AI** | Google Gemini (REST) + Anthropic Claude (`anthropic` SDK) |
+| **Documents** | `pypdf` + stdlib text/csv/json decoding |
+| **PDF export** | `fpdf2` |
 
-| Component | Technology |
-|-----------|-----------|
-| Framework | Django 4.2 |
-| API | Django REST Framework (DRF) |
-| Authentication | JWT — djangorestframework-simplejwt (access + refresh, blacklist) |
-| Database | MySQL 5.7+ / MariaDB 10.3+ |
-| Language | Python 3.9+ |
-| AI Integration | Google Gemini API (REST) + Anthropic Claude (`anthropic` SDK) |
-| File Processing | pypdf, plus stdlib text/csv/json decoding |
-| PDF reports (dev tool) | fpdf2 |
+---
 
-### Frontend (To Be Developed Separately)
+## Quick Start
 
-| Component | Recommendation |
-|-----------|-----------------|
-| Framework | React, Vue, or Angular |
-| HTTP Client | Axios or Fetch API |
-| State Management | Redux, Vuex, or Context API |
-| UI Framework | Material-UI, Bootstrap, or Tailwind CSS |
+You need **Python 3.9+** and **Node.js 18+**. You do *not* need MySQL or XAMPP to run the project.
 
-### DevOps & Deployment
+### 1. Backend
 
-- **Version Control:** Git/GitHub
-- **Container:** Docker
-- **Web Server:** Gunicorn, Nginx
-- **Task Queue:** Celery (future enhancement)
-- **Monitoring:** Django Debug Toolbar, logging
+```bash
+git clone https://github.com/theuglyhaxor/CSE4204-8D-T04-SMART-QUIZ-GENERATOR.git
+cd CSE4204-8D-T04-SMART-QUIZ-GENERATOR
+
+python -m venv .venv
+# Windows:
+.\.venv\Scripts\Activate.ps1
+# macOS/Linux:
+source .venv/bin/activate
+
+pip install -r backend/requirements.txt
+
+cd backend
+cp .env.example .env        # Windows: copy .env.example .env
+python manage.py migrate
+python manage.py runserver  # http://127.0.0.1:8000
+```
+
+That's it — the default `DB_ENGINE=sqlite` needs no database server.
+
+### 2. Frontend
+
+In a **second terminal**:
+
+```bash
+cd frontend
+npm install
+npm run dev                 # http://127.0.0.1:5173
+```
+
+Open **http://127.0.0.1:5173**, click **Sign up**, choose **Teacher** or **Student**, and you're in.
+
+> The Vite dev server proxies `/api` → `http://127.0.0.1:8000` (see [`frontend/vite.config.js`](frontend/vite.config.js)),
+> so the browser only ever talks to one origin and **CORS never comes into play in development**.
+
+### 3. Enable AI generation (optional)
+
+Quiz *creation* works without any API key; only **AI generation** needs one. Add to `backend/.env`:
+
+```dotenv
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your-key-here
+```
+
+Without a key, `POST /api/ai/generate-quiz/` returns a clear **503** (`GEMINI_API_KEY is not configured.`)
+instead of crashing.
+
+---
+
+## Configuration
+
+All backend settings come from `backend/.env` — see [`backend/.env.example`](backend/.env.example).
+
+| Variable | Default | Notes |
+|---|---|---|
+| `DB_ENGINE` | `sqlite` | `sqlite` (no setup) or `mysql` |
+| `DB_NAME` / `DB_USER` / `DB_PASSWORD` / `DB_HOST` / `DB_PORT` | — | Only used when `DB_ENGINE=mysql` |
+| `DJANGO_DEBUG` | `1` | Set `0` in production |
+| `DJANGO_SECRET_KEY` | dev key | **Must** be changed in production |
+| `CORS_ALLOWED_ORIGINS` | `http://127.0.0.1:5173,http://localhost:5173` | Only needed if you *don't* use the Vite proxy |
+| `AI_PROVIDER` | `gemini` | `gemini` or `claude` |
+| `GEMINI_API_KEY` / `GEMINI_MODEL` | — / `gemini-2.5-flash` | Required for Gemini |
+| `ANTHROPIC_API_KEY` / `CLAUDE_MODEL` | — / `claude-opus-4-8` | Required for Claude |
+
+### Using MySQL / XAMPP instead of SQLite
+
+Start MySQL, create the database, then flip `DB_ENGINE`:
+
+```sql
+CREATE DATABASE smart_quiz_generator CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+```dotenv
+DB_ENGINE=mysql
+DB_NAME=smart_quiz_generator
+DB_USER=root
+DB_PASSWORD=
+```
+
+```bash
+python manage.py migrate
+```
+
+The DDL that these migrations produce is documented in [`database/schema.sql`](database/schema.sql).
+
+### Frontend
+
+| Variable | Default | Notes |
+|---|---|---|
+| `VITE_API_BASE_URL` | `/api` | Leave as-is to use the dev proxy. Set to a full URL (e.g. `https://api.example.com/api`) for a deployed backend. |
+| `VITE_BACKEND_URL` | `http://127.0.0.1:8000` | Where the dev proxy forwards `/api`. |
+
+---
+
+## How the Pieces Fit Together
+
+```mermaid
+graph LR
+    subgraph Browser
+        UI["React SPA<br/>(Vite :5173)"]
+    end
+
+    subgraph Server["Django REST (:8000)"]
+        AUTH["JWT auth<br/>+ role guards"]
+        QUIZ["Quiz / Question /<br/>Attempt endpoints"]
+        PDF["PDF renderer<br/>quiz_api/pdf.py"]
+        AI["ai_integration/<br/>generate_quiz()"]
+    end
+
+    subgraph Data
+        DB[("SQLite / MySQL")]
+    end
+
+    subgraph External
+        GEM["Google Gemini"]
+        CLA["Anthropic Claude"]
+    end
+
+    UI -->|"/api/* (Bearer JWT)"| AUTH
+    AUTH --> QUIZ
+    QUIZ --> DB
+    QUIZ --> PDF
+    QUIZ --> AI
+    AI --> GEM
+    AI --> CLA
+    PDF -->|"application/pdf"| UI
+```
+
+**Key flows**
+
+- **Teacher generates a quiz:** `POST /api/ai/generate-quiz/` → `ai_integration.generate_quiz()` picks the
+  provider → the model returns JSON → one shared validation gate → the `Quiz` + `Question` rows are saved
+  as a **draft** and returned. The teacher reviews, then publishes.
+- **Student takes a quiz:** `GET /api/quizzes/:id/student-questions/` (answers stripped out) →
+  `POST /api/quizzes/:id/submit/` → the server scores it, stores the attempt against the **authenticated
+  user**, and returns the score plus the correct answers and explanations.
+- **PDF export:** `GET /api/quizzes/:id/export-pdf/` renders through `quiz_api/pdf.py`, the *same* renderer
+  the offline review CLI uses.
+
+---
+
+## API Reference
+
+Base URL: `http://127.0.0.1:8000/api`
+All protected endpoints require `Authorization: Bearer <access_token>`.
+
+### Meta
+
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| `GET` | `/meta/` | public | Team identity (drives the app + PDF footers) |
+| `GET` | `/stats/` | teacher/student | Dashboard counters (shape depends on role) |
+
+### Auth
+
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| `POST` | `/auth/register/` | public | Create an account (`role`: `teacher` \| `student`) → returns `access` + `refresh` + `user` |
+| `POST` | `/auth/login/` | public | Log in → returns `access` + `refresh` + `user` |
+| `GET` | `/auth/me/` | any | Current user — used to restore a session from a stored token |
+| `POST` | `/auth/token/refresh/` | public | Exchange a refresh token for a new access token |
+| `POST` | `/auth/logout/` | any | Blacklist the refresh token |
+
+### Quizzes
+
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| `GET` | `/quizzes/` | teacher/student | List quizzes. **Students only see published ones.** |
+| `POST` | `/quizzes/` | teacher | Create a quiz (starts as a **draft**) |
+| `GET` | `/quizzes/{id}/` | teacher/student | Retrieve a quiz |
+| `PATCH` | `/quizzes/{id}/` | teacher (owner) | Update — e.g. `{"is_active": true}` to publish |
+| `DELETE` | `/quizzes/{id}/` | teacher (owner) | Delete the quiz, its questions and attempts |
+| `GET` | `/quizzes/{id}/export-pdf/` | teacher/student | **Download the quiz as a PDF.** `?answers=false` for the student handout |
+
+### Questions
+
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| `GET` | `/quizzes/{id}/questions/` | teacher | Questions for one quiz (with answers) |
+| `POST` | `/quizzes/{id}/questions/` | teacher (owner) | Add a question (`order` is auto-assigned) |
+| `GET` | `/quizzes/{id}/student-questions/` | teacher/student | Questions **without** `correct_option` / `explanation` |
+| `GET` | `/questions/?quiz={id}` | teacher | Flat question list (Question Bank) |
+| `PATCH`/`DELETE` | `/questions/{id}/` | teacher | Update / delete a question |
+
+### Attempts
+
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| `POST` | `/quizzes/{id}/submit/` | student | Submit answers → scored immediately |
+| `GET` | `/quizzes/{id}/attempts/` | teacher | Every attempt at that quiz |
+| `GET` | `/attempts/me/` | student | **Only the caller's own** attempts |
+
+### Documents & AI
+
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| `POST` | `/documents/parse/` | teacher | Upload a PDF/TXT/MD/CSV/JSON → extracted text |
+| `POST` | `/ai/generate-quiz/` | teacher | Generate + save a quiz. Optional `"provider": "gemini"\|"claude"` |
+
+Full detail: **[docs/BACKEND_API_REFERENCE.md](docs/BACKEND_API_REFERENCE.md)**
+
+---
+
+## PDF Export
+
+Every quiz can be exported as a polished A4 PDF, in two variants:
+
+| Variant | Request | Contents |
+|---|---|---|
+| **Answer key** (teacher) | `GET /api/quizzes/{id}/export-pdf/` | Correct option highlighted, explanations, and a full answer-key page |
+| **Student handout** | `GET /api/quizzes/{id}/export-pdf/?answers=false` | Questions and options only — no answers, no explanations |
+
+A student calling this endpoint **always** gets the handout, even if they ask for `answers=true`.
+
+The document has a coloured title band, a metadata strip (difficulty / questions / duration / date / model),
+numbered question badges, and a **team identity footer on every page** — team ID, project, course,
+department and university — plus a closing credits block naming all four members. Unicode (curly quotes,
+em-dashes, `H₂O`) renders correctly.
+
+Both the API and the offline review CLI use the **same** renderer, [`backend/quiz_api/pdf.py`](backend/quiz_api/pdf.py),
+so what a teacher downloads is exactly what you review offline:
+
+```bash
+cd backend
+python ai_integration/generate_sample_quizzes_pdf.py                     # default topics
+python ai_integration/generate_sample_quizzes_pdf.py "Quantum physics"   # custom topic
+python ai_integration/generate_sample_quizzes_pdf.py --provider claude "Cell biology"
+python ai_integration/generate_sample_quizzes_pdf.py --no-answers "Algebra"  # handout
+```
+
+PDFs are written to `backend/sample_quizzes/`.
+
+---
+
+## AI Integration
+
+All AI logic lives in one place: the [`backend/ai_integration/`](backend/ai_integration/) package. The web
+layer never talks to a model directly — it calls a single function, `generate_quiz(payload, provider)`.
+
+| Provider | Default model | How it returns JSON | Dependency |
+|---|---|---|---|
+| **Google Gemini** (default) | `gemini-2.5-flash` | Prompted for JSON; fences stripped and parsed | none (stdlib `urllib`) |
+| **Anthropic Claude** | `claude-opus-4-8` | Structured outputs — schema-enforced JSON | `anthropic` SDK |
+
+**Choosing a provider** — globally with `AI_PROVIDER=gemini|claude`, or per request by adding
+`"provider": "claude"` to the POST body.
+
+**Validation gate (both providers):** exactly four options; `correct_option` must be `A`/`B`/`C`/`D`
+(normalised to uppercase); a non-empty title; and the requested number of questions. A missing API key
+returns **503** with a clear message rather than a crash.
+
+Design detail: **[backend/ai_integration/README.md](backend/ai_integration/README.md)** ·
+**[docs/AI_INTEGRATION.md](docs/AI_INTEGRATION.md)**
+
+---
+
+## Database
+
+Django migrations own the schema — `python manage.py migrate` creates everything.
+
+| Table | Purpose |
+|---|---|
+| `quiz_api_quiz` | Quiz metadata. `created_by_id` → owner. `is_active` → draft/published. |
+| `quiz_api_question` | MCQ content: prompt, options A–D, `correct_option`, explanation, order. |
+| `quiz_api_quizattempt` | A submission: `student_id` → submitter, `responses` JSON, score, total. |
+| `auth_user`, `auth_group`, `auth_user_groups` | Django accounts + the `teacher` / `student` role groups. |
+| `token_blacklist_*` | JWT refresh-token tracking and logout blacklist. |
+
+Relationships:
+
+```
+USER (1) ──< QUIZ (M)           quiz.created_by_id      (a teacher owns their quizzes)
+QUIZ (1) ──< QUESTION (M)       question.quiz_id        (CASCADE)
+QUIZ (1) ──< QUIZATTEMPT (M)    quizattempt.quiz_id     (CASCADE)
+USER (1) ──< QUIZATTEMPT (M)    quizattempt.student_id  (a student owns their attempts)
+```
+
+Reference DDL: **[database/schema.sql](database/schema.sql)** ·
+Design notes: **[docs/DATABASE_ARCHITECTURE.md](docs/DATABASE_ARCHITECTURE.md)**
+
+---
+
+## Testing
+
+```bash
+cd backend
+python manage.py test quiz_api
+```
+
+**32 tests**, covering registration and login, JWT refresh and logout blacklisting, role-based access
+control, quiz ownership, draft visibility, question ordering and option normalisation, scoring, attempt
+ownership (including rejecting a spoofed `student_name`), the stats endpoints, document parsing, and PDF
+export in both variants.
+
+```bash
+cd frontend
+npm run build      # production build
+```
 
 ---
 
@@ -136,698 +401,93 @@ This university project was created by team **CSE4204-8D-T04**.
 
 ```
 CSE4204-8D-T04-SMART-QUIZ-GENERATOR/
-├── README.md                                    # Project overview
-├── sample_data.sql                              # Sample database seed script
-├── CSE4204-8D-T04_SRS.md                       # Software Requirements Specification
 ├── backend/
-│   ├── manage.py                                # Django management script
-│   ├── requirements.txt                         # Python dependencies
-│   ├── manual_api_test.py                       # End-to-end backend smoke test (no frontend)
-│   ├── ai_integration/                          # ⭐ ALL AI logic (provider-agnostic package)
-│   │   ├── __init__.py                          # Public API (generate_quiz, etc.)
-│   │   ├── README.md                            # AI integration design document
-│   │   ├── documents.py                         # File -> text extraction (AI input pipeline)
-│   │   ├── prompts.py                           # Provider-neutral prompt builder
-│   │   ├── validation.py                        # Shared quiz JSON schema + validation
-│   │   ├── gemini.py                            # Google Gemini provider
-│   │   ├── claude.py                            # Anthropic Claude provider
-│   │   ├── providers.py                         # generate_quiz() dispatcher
-│   │   └── generate_sample_quizzes_pdf.py       # CLI: generate sample quizzes -> PDF
-│   ├── quiz_api/                                # Main Django app (web layer)
-│   │   ├── __init__.py
-│   │   ├── admin.py                             # Django admin configuration
-│   │   ├── apps.py                              # App configuration
-│   │   ├── models.py                            # Database models (Quiz, Question, QuizAttempt)
-│   │   ├── permissions.py                       # Custom permission classes
-│   │   ├── serializers.py                       # DRF serializers
-│   │   ├── tests.py                             # Unit tests
-│   │   ├── urls.py                              # URL routing
-│   │   ├── views.py                             # API endpoints (calls ai_integration)
-│   │   └── migrations/                          # Database migrations
-│   │       ├── __init__.py
-│   │       ├── 0001_initial.py                  # Initial schema
-│   │       └── 0002_create_roles.py             # Role setup
+│   ├── manage.py
+│   ├── requirements.txt
+│   ├── .env.example                  # copy to .env
+│   ├── ai_integration/               # ⭐ ALL AI logic (provider-agnostic)
+│   │   ├── __init__.py               #    public API: generate_quiz(), extract_text_from_uploaded_file()
+│   │   ├── documents.py              #    file → text (PDF/TXT/MD/CSV/JSON)
+│   │   ├── prompts.py                #    provider-neutral prompt builder
+│   │   ├── validation.py             #    shared quiz-JSON schema + validation gate
+│   │   ├── gemini.py                 #    Google Gemini provider
+│   │   ├── claude.py                 #    Anthropic Claude provider
+│   │   ├── providers.py              #    generate_quiz() dispatcher
+│   │   └── generate_sample_quizzes_pdf.py   # CLI: generate quizzes → PDF for review
+│   ├── quiz_api/
+│   │   ├── models.py                 # Quiz, Question, QuizAttempt
+│   │   ├── serializers.py
+│   │   ├── permissions.py            # IsTeacherUser / IsStudentUser / …
+│   │   ├── views.py                  # all API endpoints
+│   │   ├── pdf.py                    # ⭐ the shared PDF renderer (identity footer)
+│   │   ├── urls.py
+│   │   ├── tests.py                  # 32 end-to-end API tests
+│   │   └── migrations/
 │   └── smart_quiz_backend/
-│       ├── __init__.py
-│       ├── asgi.py                              # ASGI configuration
-│       ├── settings.py                          # Django settings (AI keys + provider)
-│       ├── urls.py                              # Global URL configuration
-│       └── wsgi.py                              # WSGI configuration
+│       ├── settings.py               # DB switch, CORS, JWT, TEAM identity
+│       └── urls.py
+├── frontend/
+│   ├── vite.config.js                # dev proxy /api → :8000
+│   ├── package.json
+│   └── src/
+│       ├── api/client.js             # ⭐ JWT client: auth, auto-refresh, PDF download
+│       ├── context/AuthContext.jsx   # session state
+│       ├── components/
+│       │   ├── ProtectedRoute.jsx    # auth + role route guard
+│       │   ├── TeamFooter.jsx        # identity footer (mirrors the PDF footer)
+│       │   ├── QuizTable.jsx         # teacher: publish / export / results / delete
+│       │   ├── AttemptsModal.jsx     # teacher: student results
+│       │   ├── QuizConfig.jsx        # AI generation form
+│       │   ├── QuizPreview.jsx       # review generated questions
+│       │   └── …
+│       ├── pages/
+│       │   ├── Login.jsx  Register.jsx
+│       │   ├── Dashboard.jsx  CreateQuiz.jsx  QuestionBank.jsx   # teacher
+│       │   ├── StudentHome.jsx  TakeQuiz.jsx  MyAttempts.jsx     # student
+│       │   └── UserProfile.jsx  Settings.jsx
+│       └── App.jsx                   # routing + role redirects
 ├── database/
-│   ├── schema.sql                               # Reference DDL (tables, PK/FK, constraints)
-│   ├── seed_data.sql                            # Sample data seed script
-│   └── README.md                                # Database design summary
-├── postman/
-│   ├── Smart_Quiz_Generator.postman_collection.json   # All API requests
-│   ├── Smart_Quiz_Generator.postman_environment.json  # Local environment vars
-│   └── README.md                                # How to run the collection
-├── documentation/
-│   ├── CSE4204-8D-T04_Backend_Progress_Report.md  # Backend progress report
-│   └── CSE4204-8D-T04_SystemDesign.md           # System design document
-├── docs/
-│   ├── AI_INTEGRATION.md                         # Gemini/Claude integration guide
-│   ├── BACKEND_API_REFERENCE.md                 # Complete API documentation
-│   ├── DATABASE_ARCHITECTURE.md                 # Database schema details
-│   └── FRONTEND_DEVELOPER_GUIDE.md              # Frontend integration guide
-└── .gitignore                                   # Git ignore rules
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.9+
-- MySQL 5.7+ or MariaDB 10.3+
-- Git
-- pip (Python package manager)
-
-### Local Setup
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/YOUR_ORG/CSE4204-8D-T04-SMART-QUIZ-GENERATOR.git
-   cd CSE4204-8D-T04-SMART-QUIZ-GENERATOR
-   ```
-
-2. **Set up Python virtual environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies:**
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   ```
-
-4. **Configure environment variables:**
-   Create a `.env` file in the `backend/` directory:
-   ```dotenv
-   DJANGO_DEBUG=1
-   DJANGO_SECRET_KEY=your-secret-key-here
-   DB_NAME=smart_quiz_generator
-   DB_USER=root
-   DB_PASSWORD=your-password
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-
-   # --- AI providers ---
-   AI_PROVIDER=gemini                 # default provider: gemini | claude
-
-   # Google Gemini
-   GEMINI_API_KEY=your-gemini-api-key
-   GEMINI_MODEL=gemini-2.5-flash      # optional
-   GEMINI_TIMEOUT=30                  # optional
-
-   # Anthropic Claude (only needed if you use the claude provider)
-   ANTHROPIC_API_KEY=your-anthropic-api-key
-   CLAUDE_MODEL=claude-opus-4-8       # optional
-   ```
-
-5. **Run migrations:**
-   ```bash
-   python manage.py migrate
-   ```
-
-6. **Create superuser:**
-   ```bash
-   python manage.py createsuperuser
-   ```
-
-7. **Load sample data (optional):**
-   ```bash
-   mysql -u root -p smart_quiz_db < ../sample_data.sql
-   ```
-
-8. **Start the development server:**
-   ```bash
-   python manage.py runserver
-   ```
-
-   The API will be available at `http://localhost:8000/api/`
-
-### Running Tests
-
-```bash
-python manage.py test quiz_api
-```
-
----
-
-## API Documentation
-
-### Base URL
-```
-http://localhost:8000/api/
-```
-
-### Authentication
-
-All protected endpoints require a JWT access token in the Authorization header:
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
-Login/register return both an `access` and a `refresh` token. When the access
-token expires, exchange the refresh token at `POST /auth/token/refresh/` for a
-new access token.
-
-### Key Endpoints
-
-#### Authentication
-- `POST /auth/register/` - Register new user
-- `POST /auth/login/` - Login and get access + refresh tokens
-- `POST /auth/token/refresh/` - Exchange a refresh token for a new access token
-- `POST /auth/logout/` - Blacklist the refresh token (logout)
-
-#### Quizzes (Teacher)
-- `GET /quizzes/` - List all quizzes
-- `POST /quizzes/` - Create new quiz
-- `GET /quizzes/{id}/` - Retrieve quiz details
-- `PUT /quizzes/{id}/` - Update quiz
-- `DELETE /quizzes/{id}/` - Delete quiz
-
-#### Questions (Teacher)
-- `GET /quizzes/{quiz_id}/questions/` - List questions
-- `POST /quizzes/{quiz_id}/questions/` - Add question
-- `PUT /quizzes/{quiz_id}/questions/{id}/` - Update question
-- `DELETE /quizzes/{quiz_id}/questions/{id}/` - Delete question
-
-#### AI Question Generation
-- `POST /quizzes/{quiz_id}/generate-questions/` - Generate from document
-
-#### Quiz Taking (Student)
-- `GET /quizzes/{id}/questions-safe/` - Get questions (without answers)
-- `POST /quizzes/{id}/submit/` - Submit quiz attempt
-
-#### Attempts & Scoring
-- `GET /attempts/` - List all attempts (with filtering)
-- `GET /attempts/{id}/` - View attempt details
-
-**For complete API documentation, see [BACKEND_API_REFERENCE.md](docs/BACKEND_API_REFERENCE.md)**
-
----
-
-## Database Schema
-
-### Core Tables
-
-**quiz_api_quiz**
-- Stores quiz metadata (title, description, difficulty, duration, active status, timestamps)
-
-**quiz_api_question**
-- Stores questions linked to quizzes (prompt, options A-D, correct answer, explanation, order)
-
-**quiz_api_quizattempt**
-- Stores student submissions (student name, responses JSON, score, total, timestamp)
-
-**auth_user**
-- Django's user authentication table
-
-**token_blacklist_outstandingtoken / token_blacklist_blacklistedtoken**
-- JWT refresh-token tracking and blacklist (logout / rotation)
-
-**For detailed schema, see [DATABASE_ARCHITECTURE.md](docs/DATABASE_ARCHITECTURE.md)**
-
----
-
-## Deployment
-
-### Production Setup
-
-1. **Set DEBUG=False in settings**
-2. **Configure environment variables**
-3. **Use Gunicorn as application server**
-4. **Set up Nginx as reverse proxy**
-5. **Enable HTTPS with SSL certificates**
-6. **Configure database backups**
-7. **Set up monitoring and logging**
-
-### Docker Deployment (Optional)
-
-```dockerfile
-# Dockerfile
-FROM python:3.9
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-CMD ["gunicorn", "smart_quiz_backend.wsgi:application", "--bind", "0.0.0.0:8000"]
+│   ├── schema.sql                    # reference DDL
+│   ├── seed_data.sql
+│   └── README.md
+├── docs/                             # API, database, AI and frontend guides
+├── diagrams/                         # use case, ER, architecture, activity
+├── documentation/                    # SRS-adjacent reports, screenshots
+├── postman/                          # API collection + environment
+└── CSE4204-8D-T04_SRS.md
 ```
 
 ---
 
 ## Documentation
 
--  **[Software Requirements Specification (SRS)](CSE4204-8D-T04_SRS.md)** - Complete requirements document
--  **[AI Integration (package design)](backend/ai_integration/README.md)** - How Gemini + Claude are implemented
--  **[API Reference](docs/BACKEND_API_REFERENCE.md)** - Detailed API documentation
--  **[Database Architecture](docs/DATABASE_ARCHITECTURE.md)** - Schema and relationships
--  **[AI Integration Guide](docs/AI_INTEGRATION_GUIDE.md)** - Gemini API setup
--  **[Frontend Developer Guide](docs/FRONTEND_DEVELOPER_GUIDE.md)** - Integration instructions
+| Document | Contents |
+|---|---|
+| [SRS](CSE4204-8D-T04_SRS.md) | Software Requirements Specification |
+| [Backend API Reference](docs/BACKEND_API_REFERENCE.md) | Every endpoint, request/response shapes |
+| [Database Architecture](docs/DATABASE_ARCHITECTURE.md) | Schema, relationships, roles |
+| [AI Integration](docs/AI_INTEGRATION.md) | Gemini + Claude setup and behaviour |
+| [AI package design](backend/ai_integration/README.md) | How the provider abstraction works |
+| [Frontend Developer Guide](docs/FRONTEND_DEVELOPER_GUIDE.md) | API contract and integration for the UI |
+| [Diagrams](diagrams/) | [Overview](diagrams/00-ARCHITECTURE-OVERVIEW.md) · [Use Case](diagrams/CSE4204-8D-T04_USE_CASE_DIAGRAM.md) · [ER](diagrams/CSE4204-8D-T04_ER-DIAGRAM.md) · [Architecture](diagrams/CSE4204-8D-T04_ARCHITECTURE-DIAGRAM.md) · [Activity](diagrams/CSE4204-8D-T04_ACTIVITY-DIAGRAM.md) |
+| [Postman collection](postman/) | Ready-to-run API requests |
 
 ---
 
-##  System Diagrams
+## Production Notes
 
-###  Quick Links to All Diagrams
+The current configuration targets local development. Before deploying:
 
-All diagrams are in the **`/diagrams/`** folder. **[View Diagrams Folder →](diagrams/)**
-
-| Diagram | Description | Use Case |
-|---------|-------------|----------|
-|  [Quick Overview](diagrams/00-ARCHITECTURE-OVERVIEW.md) | 5-layer system architecture | Start here! Quick understanding |
-|  [Use Case](diagrams/CSE4204-8D-T04_USE_CASE_DIAGRAM.md) | 3 actors, 15 use cases | What the system does |
-|  [ER Diagram](diagrams/CSE4204-8D-T04_ER-DIAGRAM.md) | 7 entities, relationships | Database schema |
-|  [Architecture](diagrams/CSE4204-8D-T04_ARCHITECTURE-DIAGRAM.md) | 5 layers, 10+ services | Complete system design |
-
-** [→ Open Diagrams Folder](diagrams/)** to view and read all diagrams with detailed explanations.
-
-### Quick Architecture Overview
-
-```mermaid
-graph TB
-    subgraph Frontend["🖥️ FRONTEND LAYER"]
-        WEB["Web Browser<br/>React/Vue/Angular"]
-    end
-    
-    subgraph Gateway["🔒 API GATEWAY"]
-        LB["Nginx<br/>Load Balancer<br/>HTTPS Termination"]
-    end
-    
-    subgraph AppLayer["⚙️ APPLICATION LAYER"]
-        AUTH["🔐 Authentication<br/>Token-Based"]
-        QUIZ["📝 Quiz Service<br/>CRUD Operations"]
-        QUESTION["❓ Question Service<br/>Management"]
-        SCORING["⭐ Scoring Service<br/>Calculate Scores"]
-        PARSER["📄 Document Parser<br/>PDF/TXT/MD/CSV/JSON"]
-        AI["🤖 AI Integration<br/>Gemini + Claude providers"]
-    end
-    
-    subgraph Data["💾 DATA LAYER"]
-        DB[("🗄️ MySQL/MariaDB<br/>Primary Database")]
-        CACHE[("⚡ Redis<br/>Optional Cache")]
-    end
-    
-    subgraph External["☁️ EXTERNAL SERVICES"]
-        GEMINI["🌟 Google Gemini API<br/>AI Question Generation"]
-        CLAUDE["🧠 Anthropic Claude API<br/>AI Question Generation"]
-    end
-    
-    WEB -->|HTTPS/REST API| LB
-    
-    LB -->|Route| AUTH
-    LB -->|Route| QUIZ
-    LB -->|Route| QUESTION
-    LB -->|Route| SCORING
-    LB -->|Route| PARSER
-    LB -->|Route| AI
-    
-    AUTH -->|Verify| DB
-    QUIZ -->|Read/Write| DB
-    QUESTION -->|Read/Write| DB
-    SCORING -->|Update| DB
-    PARSER -->|Upload| DB
-    AI -->|Call API| GEMINI
-    AI -->|Call API| CLAUDE
-    GEMINI -->|Return Questions| AI
-    CLAUDE -->|Return Questions| AI
-    
-    AUTH -->|Cache| CACHE
-    QUIZ -->|Cache| CACHE
-    QUESTION -->|Cache| CACHE
-    
-    style Frontend fill:#e1f5ff
-    style Gateway fill:#fff3e0
-    style AppLayer fill:#f3e5f5
-    style Data fill:#e8f5e9
-    style External fill:#fce4ec
-```
-
-### Key Workflows
-
--  **Teacher:** Create quiz → Add questions → Generate from docs → Review attempts
--  **Student:** View quizzes → Take quiz → Submit → View score
--  **System:** Validate → Score → Generate AI questions
-
-**For detailed diagrams with full explanations, see the [diagrams folder →](diagrams/)**
-
----
-
-## Contributing
-
-1. Follow PEP 8 style guidelines
-2. Write unit tests for new features
-3. Update documentation
-4. Create feature branches: `feature/feature-name`
-5. Submit pull requests for review
-
----
-
-## Testing
-
-- **Unit Tests:** `python manage.py test quiz_api`
-- **Coverage Report:** `coverage run --source='.' manage.py test && coverage report`
-- **Minimum Coverage:** 80%
-
----
-
-## Support & Troubleshooting
-
-For common issues and solutions, refer to the [Backend Developer Guide](docs/BACKEND_API_REFERENCE.md).
+1. `DJANGO_DEBUG=0` and set a strong `DJANGO_SECRET_KEY`.
+2. Set `DJANGO_ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS` to your real domains.
+3. Switch to `DB_ENGINE=mysql` (or Postgres) and configure backups.
+4. Serve via Gunicorn behind Nginx with HTTPS.
+5. Build the frontend (`npm run build`) and serve `frontend/dist/` as static files, pointing
+   `VITE_API_BASE_URL` at the deployed API.
+6. Keep AI API keys server-side only — they are never exposed to the browser.
 
 ---
 
 ## License
 
-This project is part of CSE4204 Course Assignment. All rights reserved by the course instructors.
-
----
-
-
-- Django 4.2.17
-- Django REST Framework
-- django-cors-headers
-- PyMySQL
-- MySQL or MariaDB on XAMPP
-
-## Frontend (Upcoming)
-- React.js
-## AI integration (Implemented)
-- Google Gemini (default) and Anthropic Claude — see [backend/ai_integration/](backend/ai_integration/README.md)
-## Deployment (Upcoming)
-- Railway/Render
-
-### Data model summary
-
-- **Quiz**: quiz metadata such as title, difficulty, duration, and active status.
-- **Question**: MCQ content, four answer options, correct option, explanation, and order.
-- **QuizAttempt**: saved student responses, score, total, and timestamp.
-
-### Database architecture
-
-A dedicated database architecture guide lives in [docs/DATABASE_ARCHITECTURE.md](docs/DATABASE_ARCHITECTURE.md). It documents the tables, relationships, and role/auth schema used by the Django backend.
-
-### API entry point
-
-- Base URL: `http://127.0.0.1:8001/api`
-
-### Important routes
-
-- `GET /api/quizzes/` — list quizzes
-- `POST /api/quizzes/` — create a quiz
-- `GET /api/quizzes/<id>/` — retrieve a quiz
-- `GET /api/quizzes/<id>/questions/` — list questions for a quiz
-- `POST /api/quizzes/<id>/questions/` — create a question for a quiz
-- `GET /api/quizzes/<id>/student-questions/` — fetch student-safe questions only
-- `POST /api/quizzes/<id>/submit/` — submit answers and calculate the score
-- `GET /api/quizzes/<id>/attempts/` — list quiz attempts
-- `POST /api/documents/parse/` — upload and parse a PDF or text file
-- `POST /api/ai/generate-quiz/` — generate a quiz using AI (Gemini or Claude)
-
----
-
-## Backend setup on XAMPP
-
-### 1. Start XAMPP services
-
-Start **Apache** and **MySQL** from the XAMPP control panel.
-
-### 2. Create the database
-
-Open a MySQL shell and create the database:
-
-```sql
-CREATE DATABASE smart_quiz_generator CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-### 3. Create the Python environment
-
-```powershell
-cd D:\SMART-QUIZ-GENERATOR
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r backend\requirements.txt
-```
-
-> Always use the virtualenv interpreter for backend commands. The backend should be started with `D:\SMART-QUIZ-GENERATOR\.venv\Scripts\python.exe`, not the system `python` command.
-
-### 4. Configure environment variables
-
-Use PowerShell to set the backend environment before starting Django:
-
-```powershell
-$env:DB_NAME = "smart_quiz_generator"
-$env:DB_USER = "root"
-$env:DB_PASSWORD = ""
-$env:DB_HOST = "127.0.0.1"
-$env:DB_PORT = "3306"
-$env:DJANGO_DEBUG = "1"
-$env:CORS_ALLOWED_ORIGINS = "http://127.0.0.1:3000,http://localhost:3000"
-```
-
-Add AI provider settings when you want AI generation enabled.
-
-Gemini (default provider):
-
-```powershell
-$env:GEMINI_API_KEY = "your-api-key"
-$env:GEMINI_MODEL = "gemini-2.5-flash"
-$env:GEMINI_TIMEOUT = "30"
-```
-
-Claude (optional second provider):
-
-```powershell
-$env:AI_PROVIDER = "claude"          # make Claude the default, or send "provider":"claude" per request
-$env:ANTHROPIC_API_KEY = "your-anthropic-key"
-$env:CLAUDE_MODEL = "claude-opus-4-8"
-```
-
-> If your XAMPP root user has a password, replace the blank password with your actual password.
-
-### 5. Apply migrations
-
-```powershell
-cd backend
-python manage.py migrate
-```
-
-### 6. Load sample data
-
-```powershell
-mysql -u root -p smart_quiz_generator < ..\sample_data.sql
-```
-
-If your XAMPP root user has no password, use:
-
-```powershell
-mysql -u root smart_quiz_generator < ..\sample_data.sql
-```
-
-### 7. Start the backend
-
-```powershell
-cd backend
-D:\SMART-QUIZ-GENERATOR\.venv\Scripts\python.exe manage.py runserver 8001
-```
-
-You should see Django running on `http://127.0.0.1:8001/`.
-
-### 8. Register and log in
-
-Use the auth endpoints to create a teacher or student account and get JWT tokens
-(`access` + `refresh`).
-
-```powershell
-$register = '{"username":"teacher1","password":"Test@123","role":"teacher"}'
-Invoke-WebRequest -Method POST -ContentType "application/json" -Body $register http://127.0.0.1:8001/api/auth/register/ | Select-Object -ExpandProperty Content
-
-$login = '{"username":"teacher1","password":"Test@123"}'
-Invoke-WebRequest -Method POST -ContentType "application/json" -Body $login http://127.0.0.1:8001/api/auth/login/ | Select-Object -ExpandProperty Content
-```
-
-Use the returned `access` token in later requests:
-
-```powershell
-$headers = @{ Authorization = "Bearer YOUR_ACCESS_TOKEN" }
-Invoke-WebRequest -Headers $headers http://127.0.0.1:8001/api/quizzes/ | Select-Object -ExpandProperty Content
-```
-
----
-
-## How to test the backend
-
-### Basic verification
-
-Run these checks after the server starts.
-
-#### 1. Verify the API is alive
-
-```powershell
-Invoke-WebRequest http://127.0.0.1:8001/api/quizzes/ | Select-Object -ExpandProperty Content
-```
-
-#### 2. Verify the student-safe endpoint
-
-```powershell
-Invoke-WebRequest http://127.0.0.1:8001/api/quizzes/1/student-questions/ | Select-Object -ExpandProperty Content
-```
-
-#### 3. Verify quiz submission
-
-```powershell
-$body = '{"student_name":"Test Student","answers":[{"question":1,"selected_option":"B"}]}'
-Invoke-WebRequest -Method POST -ContentType "application/json" -Body $body http://127.0.0.1:8001/api/quizzes/1/submit/ | Select-Object -ExpandProperty Content
-```
-
-#### 4. Verify AI generation
-
-```powershell
-$body = '{"title":"AI Test Quiz","difficulty":"Medium","question_count":2,"topic":"Science","syllabus":"Cells and planets","instruction":"Generate two clear MCQs.","duration_minutes":5}'
-Invoke-WebRequest -Method POST -ContentType "application/json" -Body $body http://127.0.0.1:8001/api/ai/generate-quiz/ | Select-Object -ExpandProperty Content
-```
-
-If `GEMINI_API_KEY` is not set, the response will be `503` and the body will contain `GEMINI_API_KEY is not configured.`
-
-#### 5. Verify document parsing
-
-```powershell
-$headers = @{ Authorization = "Bearer YOUR_ACCESS_TOKEN" }
-$files = @{ file = Get-Item .\sample.txt }
-Invoke-RestMethod -Method POST -Headers $headers -Form $files http://127.0.0.1:8001/api/documents/parse/
-```
-
-### What a healthy backend looks like
-
-A healthy backend should show:
-
-- `GET /api/quizzes/` returns JSON quiz objects.
-- `GET /api/quizzes/<id>/student-questions/` returns only question text and options.
-- `POST /api/quizzes/<id>/submit/` returns a score and attempt details.
-- `POST /api/ai/generate-quiz/` returns `201` once Gemini is configured.
-
----
-
-## How to build the frontend separately
-
-This repository does not contain the UI anymore. Build the frontend as a separate project and make it call the backend APIs.
-
-### Recommended frontend approach
-
-- Use **React + Vite**, **Vue**, or plain HTML/JS if you want a lightweight starter.
-- Keep the frontend in its own folder or repository.
-- Store the API base URL in one place.
-- Use the backend only for data and AI generation.
-- Never place `GEMINI_API_KEY` on the client.
-
-### Frontend responsibilities
-
-- Teacher dashboard: create quizzes, add questions, view attempts.
-- Student portal: list quizzes, fetch student-safe questions, submit answers.
-- Results screen: show scores and attempt history.
-
-### CORS requirements
-
-Add your frontend origin to `CORS_ALLOWED_ORIGINS`, for example:
-
-```powershell
-$env:CORS_ALLOWED_ORIGINS = "http://127.0.0.1:3000,http://localhost:3000"
-```
-
-### Frontend integration guide
-
-See [docs/FRONTEND_DEVELOPER_GUIDE.md](docs/FRONTEND_DEVELOPER_GUIDE.md) for a detailed frontend contract and example API usage.
-
----
-
-## AI Integration (Gemini + Claude)
-
-The AI flow is **server-side only** and lives entirely in the
-[`backend/ai_integration/`](backend/ai_integration/) package. The Django web
-layer never talks to a model directly — it calls one function, `generate_quiz()`,
-which selects a provider and delegates. The full design is documented in
-[backend/ai_integration/README.md](backend/ai_integration/README.md).
-
-### Supported providers
-
-| Provider | Default model | How it produces JSON | Dependency |
-|----------|---------------|----------------------|------------|
-| **Google Gemini** (default) | `gemini-2.5-flash` | Prompted for JSON; response parsed and markdown fences stripped | none (stdlib `urllib`) |
-| **Anthropic Claude** | `claude-opus-4-8` | Structured outputs (`output_config.format`) — schema-enforced JSON | `anthropic` SDK |
-
-Gemini is the default, so existing behaviour is unchanged. Claude is opt-in.
-
-### Current AI behavior
-
-1. The client sends generation details to `POST /api/ai/generate-quiz/` (teacher only).
-2. The view reads the request (including an optional `"provider"` field) and calls
-   `generate_quiz(payload, provider)`.
-3. The dispatcher routes to the Gemini or Claude provider, which builds the prompt
-   and calls the model.
-4. The response runs through one shared validation gate (`validate_generated_quiz`).
-5. The backend creates a `Quiz` record and linked `Question` records.
-6. The backend returns the created quiz and generated questions (`201`).
-
-### Choosing a provider
-
-- **Globally:** set `AI_PROVIDER=gemini` or `AI_PROVIDER=claude` in the environment.
-- **Per request:** add `"provider": "claude"` (or `"gemini"`) to the POST body — this
-  overrides `AI_PROVIDER` for that one call.
-
-### Environment variables
-
-| Variable | Provider | Required? | Default |
-|----------|----------|-----------|---------|
-| `AI_PROVIDER` | dispatcher | optional | `gemini` |
-| `GEMINI_API_KEY` | Gemini | required for Gemini | — |
-| `GEMINI_MODEL` | Gemini | optional | `gemini-2.5-flash` |
-| `GEMINI_TIMEOUT` | Gemini | optional | `30` |
-| `ANTHROPIC_API_KEY` | Claude | required for Claude | — |
-| `CLAUDE_MODEL` | Claude | optional | `claude-opus-4-8` |
-
-If a provider's key is missing, that provider returns **HTTP 503** with a clear
-message (e.g. `GEMINI_API_KEY is not configured.`) instead of crashing.
-
-### AI validation rules (both providers)
-
-- Exactly four options are required.
-- `correct_option` must be `A`, `B`, `C`, or `D` (normalised to uppercase).
-- The generated payload must include a non-empty title.
-- The response must contain the requested number of questions.
-
-### Reviewing quiz quality (PDF tool)
-
-Generate real quizzes and export them to PDF for review — no frontend or database needed:
-
-```powershell
-cd backend
-python ai_integration/generate_sample_quizzes_pdf.py                       # default topics, gemini
-python ai_integration/generate_sample_quizzes_pdf.py "Quantum physics"     # custom topic
-python ai_integration/generate_sample_quizzes_pdf.py --provider claude "Cell biology"
-```
-
-PDFs are written to `backend/sample_quizzes/`.
-
-See [backend/ai_integration/README.md](backend/ai_integration/README.md) and
-[docs/AI_INTEGRATION_GUIDE.md](docs/AI_INTEGRATION_GUIDE.md) for full details.
-
----
-
-## Documentation
-
-- [AI Integration (package design)](backend/ai_integration/README.md)
-- [Backend API Reference](docs/BACKEND_API_REFERENCE.md)
-- [Frontend Developer Guide](docs/FRONTEND_DEVELOPER_GUIDE.md)
-- [Gemini AI Integration Guide](docs/AI_INTEGRATION_GUIDE.md)
-
----
-
-## Important notes
-
-- Authentication is implemented: JWT (access + refresh) with role-based access (teacher/student). Protected endpoints require `Authorization: Bearer <access_token>`.
-- Use the seed script in [`database/seed_data.sql`](database/seed_data.sql) to populate a local testing database.
-- The current backend is designed for local development and should be hardened before production deployment.
-
+Coursework for CSE4204 — Mobile Computing Lab. All rights reserved by the course instructors.

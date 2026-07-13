@@ -19,13 +19,15 @@
 - A USER can have many JWT refresh tokens tracked for blacklist (1:M) ✅
 - A QUIZ contains many QUESTIONs (1:M) ✅
 - A QUIZ receives many QUIZATTEMPTs (1:M) ✅
-- A USER (teacher) *creates* many QUIZzes (1:M via `created_by`) 🟡 *planned*
+- A USER (teacher) *creates* many QUIZzes (1:M via `created_by`) ✅ — only the owner may edit or delete a quiz
+- A USER (student) *submits* many QUIZATTEMPTs (1:M via `student`) ✅ — a student may only read their own attempts
 
 ```mermaid
 erDiagram
     USER }o--o{ GROUP : "belongs to"
     USER ||--o{ OUTSTANDINGTOKEN : "issues (JWT refresh)"
-    USER ||--o{ QUIZ : "creates (planned)"
+    USER ||--o{ QUIZ : "creates (teacher)"
+    USER ||--o{ QUIZATTEMPT : "submits (student)"
     QUIZ ||--o{ QUESTION : "contains"
     QUIZ ||--o{ QUIZATTEMPT : "receives"
 
@@ -54,12 +56,12 @@ erDiagram
 
     QUIZ {
         int id PK
-        int created_by FK "teacher user_id (PLANNED)"
+        int created_by_id FK "owning teacher (nullable)"
         string title
         text description
-        string difficulty "default Medium"
+        string difficulty "Easy, Medium, or Hard"
         int duration_minutes "default 5"
-        boolean is_active "default true"
+        boolean is_active "default false = draft"
         datetime created_at
         datetime updated_at
     }
@@ -80,7 +82,8 @@ erDiagram
     QUIZATTEMPT {
         int id PK
         int quiz_id FK
-        string student_name "default Anonymous"
+        int student_id FK "authenticated submitter"
+        string student_name "display label, set server-side"
         json responses "embedded answer list"
         int score
         int total
@@ -95,9 +98,9 @@ erDiagram
 | **USER** | `auth_user` | User accounts | `id` | — |
 | **GROUP** | `auth_group` | Role groups (teacher/student) | `id` | — |
 | **OUTSTANDINGTOKEN** | `token_blacklist_outstandingtoken` | Issued JWT refresh tokens (blacklist in `token_blacklist_blacklistedtoken`) | `id` | `user_id` |
-| **QUIZ** | `quiz_api_quiz` | Quiz information | `id` | `created_by` 🟡 |
+| **QUIZ** | `quiz_api_quiz` | Quiz information | `id` | `created_by_id` ✅ |
 | **QUESTION** | `quiz_api_question` | Quiz questions | `id` | `quiz_id` |
-| **QUIZATTEMPT** | `quiz_api_quizattempt` | Student submissions | `id` | `quiz_id` |
+| **QUIZATTEMPT** | `quiz_api_quizattempt` | Student submissions | `id` | `quiz_id`, `student_id` ✅ |
 
 ## Relationship Descriptions
 

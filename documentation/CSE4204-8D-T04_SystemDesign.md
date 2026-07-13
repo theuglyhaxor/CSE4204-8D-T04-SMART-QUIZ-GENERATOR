@@ -357,7 +357,7 @@ decision branches: [Activity Diagrams on GitHub](https://github.com/theuglyhaxor
 
 ## 7. API Design
 
-Base URL (dev): `http://127.0.0.1:8001/api/` · Auth header: `Authorization: Token <token>`.
+Base URL (dev): `http://127.0.0.1:8000/api/` · Auth header: `Authorization: Bearer <access_token>` (JWT).
 
 | Group | Method & Endpoint | Role | Purpose |
 |-------|-------------------|------|---------|

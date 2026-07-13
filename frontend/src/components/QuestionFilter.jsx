@@ -1,78 +1,48 @@
- import React from "react";
+import { Plus, Search } from "lucide-react";
 import "./QuestionFilter.css";
 
-import {
-  Search,
-  Plus,
-} from "lucide-react";
-
-const QuestionFilter = ({ onAddQuestion }) => {
-
+/** Filters the question bank by quiz and free-text. Both are controlled by the page. */
+const QuestionFilter = ({
+  quizzes,
+  quizFilter,
+  onQuizFilter,
+  search,
+  onSearch,
+  onAddQuestion,
+  canAdd,
+}) => {
   return (
-
     <div className="question-filter">
-
-      {/* Search Box */}
-
       <div className="search-box">
-
         <Search size={18} />
-
         <input
           type="text"
-          placeholder="Search question..."
+          placeholder="Search question…"
+          value={search}
+          onChange={(e) => onSearch(e.target.value)}
         />
-
       </div>
 
-      {/* Subject Filter */}
-
-      <select>
-
-        <option>All Subjects</option>
-
-        <option>Web Development</option>
-
-        <option>Programming</option>
-
-        <option>Database</option>
-
-        <option>Operating System</option>
-
-        <option>Networking</option>
-
-        <option>Data Structure</option>
-
+      {/* Filter by quiz — the model has no "subject" field, quizzes are the grouping. */}
+      <select value={quizFilter} onChange={(e) => onQuizFilter(e.target.value)}>
+        <option value="">All quizzes</option>
+        {quizzes.map((quiz) => (
+          <option key={quiz.id} value={quiz.id}>
+            {quiz.title}
+          </option>
+        ))}
       </select>
 
-      {/* Difficulty Filter */}
-
-      <select>
-
-        <option>All Difficulty</option>
-
-        <option>Easy</option>
-
-        <option>Medium</option>
-
-        <option>Hard</option>
-
-      </select>
-
-      {/* Add Question Button */}
-
-      <button onClick={onAddQuestion}>
-
+      <button
+        onClick={onAddQuestion}
+        disabled={!canAdd}
+        title={canAdd ? "Add a question" : "Create a quiz first"}
+      >
         <Plus size={18} />
-
         Add Question
-
       </button>
-
     </div>
-
   );
-
 };
 
 export default QuestionFilter;
