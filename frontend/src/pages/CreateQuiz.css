@@ -54,7 +54,7 @@
    LEFT PANEL
 =================================== */
 
-.left-panel{
+.createquiz-left{
 
     background:#fff;
 
@@ -68,7 +68,7 @@
 
 }
 
-.left-panel:hover{
+.createquiz-left:hover{
 
     transform:translateY(-4px);
 
@@ -78,7 +78,7 @@
    RIGHT PANEL
 =================================== */
 
-.right-panel{
+.createquiz-right{
 
     background:#fff;
 
@@ -92,7 +92,7 @@
 
 }
 
-.right-panel:hover{
+.createquiz-right:hover{
 
     transform:translateY(-4px);
 
@@ -114,15 +114,15 @@ body.dark .createquiz-header p{
 
 }
 
-body.dark .left-panel,
-body.dark .right-panel{
+body.dark .createquiz-left,
+body.dark .createquiz-right{
 
     background:#1F2937;
 
 }
 
-body.dark .left-panel,
-body.dark .right-panel{
+body.dark .createquiz-left,
+body.dark .createquiz-right{
 
     color:white;
 
@@ -180,8 +180,8 @@ body.dark .right-panel{
 
     }
 
-    .left-panel,
-    .right-panel{
+    .createquiz-left,
+    .createquiz-right{
 
         padding:18px;
 

@@ -8,6 +8,7 @@ import QuizPreview from "../components/QuizPreview";
 import TeamFooter from "../components/TeamFooter";
 
 import { documents, downloadQuizPdf, quizzes as quizApi } from "../api/client";
+import "./Dashboard.css"; // shared shell layout (.dashboard, .dashboard-content)
 import "./CreateQuiz.css";
 
 /**
@@ -124,11 +125,11 @@ const CreateQuiz = ({ darkMode, setDarkMode }) => {
           {notice && <div className="banner banner--info">{notice}</div>}
 
           <div className="createquiz-grid">
-            <div className="left-panel">
+            <div className="createquiz-left">
               <QuizConfig onGenerate={handleGenerate} generating={generating} />
             </div>
 
-            <div className="right-panel">
+            <div className="createquiz-right">
               <QuizPreview
                 quiz={result?.quiz}
                 questions={result?.questions}

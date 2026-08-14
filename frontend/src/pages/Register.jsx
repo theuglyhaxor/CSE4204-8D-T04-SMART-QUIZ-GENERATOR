@@ -52,9 +52,9 @@ const Register = () => {
   return (
     <div className="register-container">
       {/* Left Side */}
-      <div className="left-panel">
-        <div className="logo">
-          <span className="logo-icon">★</span>
+      <div className="register-left">
+        <div className="register-logo">
+          <span className="register-logo-icon">★</span>
           <h2>SMART QUIZ</h2>
         </div>
 
@@ -72,7 +72,7 @@ const Register = () => {
       </div>
 
       {/* Right Side */}
-      <div className="right-panel">
+      <div className="register-right">
         <div className="form-box">
           <h2>Create Account</h2>
           <p className="subtitle">Please fill the information below.</p>

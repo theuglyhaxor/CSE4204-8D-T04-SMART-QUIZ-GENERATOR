@@ -1,14 +1,3 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"Poppins",sans-serif;
-}
-
-body{
-    background:#eef2ff;
-}
-
 .login-page{
     width:100%;
     min-height:100vh;
@@ -49,13 +38,13 @@ body{
     align-items:center;
 }
 
-.logo{
+.login-logo{
     display:flex;
     align-items:center;
     gap:15px;
 }
 
-.logo-icon{
+.login-logo-icon{
     width:55px;
     height:55px;
     border-radius:50%;
@@ -67,17 +56,17 @@ body{
     font-size:25px;
 }
 
-.logo h2{
+.login-logo h2{
     color:#111827;
     font-size:28px;
 }
 
-.logo span{
+.login-logo span{
     color:#5d3fd3;
     font-weight:700;
 }
 
-.badge{
+.login-badge{
     margin-top:35px;
     display:inline-block;
     background:#ece8ff;
@@ -266,7 +255,7 @@ ILLISTRATION
     padding:25px;
 }
 
-.avatar{
+.login-avatar{
 
     width:55px;
     height:55px;

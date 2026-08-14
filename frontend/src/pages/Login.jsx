@@ -47,15 +47,15 @@ const Login = () => {
     <div className="login-page">
       {/* Left Section */}
       <div className="left-side">
-        <div className="logo">
-          <div className="logo-icon">🧠</div>
+        <div className="login-logo">
+          <div className="login-logo-icon">🧠</div>
           <div>
             <h2>Smart Quiz</h2>
             <span>Generator</span>
           </div>
         </div>
 
-        <div className="badge">✨ AI-Powered Learning</div>
+        <div className="login-badge">✨ AI-Powered Learning</div>
 
         <h1>Welcome Back!</h1>
 
@@ -65,7 +65,7 @@ const Login = () => {
           <div className="card">
             <div className="card-top" />
             <div className="card-body">
-              <div className="avatar" />
+              <div className="login-avatar" />
               <div className="lines">
                 <div />
                 <div />

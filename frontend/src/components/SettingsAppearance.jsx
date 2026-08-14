@@ -103,10 +103,10 @@ const SettingsAppearance = ({ darkMode, setDarkMode }) => {
 
         </div>
 
-        <select>
+        <select defaultValue="Medium">
 
           <option>Small</option>
-          <option selected>Medium</option>
+          <option>Medium</option>
           <option>Large</option>
 
         </select>

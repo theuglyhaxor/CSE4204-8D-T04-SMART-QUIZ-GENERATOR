@@ -152,29 +152,6 @@ body.dark .dashboard-panel {
 }
 
 /* ==========================================
-   CARD HEADER
-========================================== */
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.card-header h3 {
-    font-size: 20px;
-    color: #111827;
-    font-weight: 600;
-}
-
-.card-header span {
-    color: #4f46e5;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-/* ==========================================
    BUTTONS
 ========================================== */
 
@@ -308,16 +285,6 @@ font-size:28px;
 .stats-grid{
 
 grid-template-columns:1fr;
-
-}
-
-.card-header{
-
-flex-direction:column;
-
-align-items:flex-start;
-
-gap:10px;
 
 }
 
