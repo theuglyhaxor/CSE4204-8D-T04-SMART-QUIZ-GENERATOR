@@ -11,9 +11,9 @@
 
 .dashboard-content {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    margin-left: 260px;
     transition: .3s;
 }
 
@@ -234,18 +234,6 @@ grid-template-columns:1fr;
 
 @media (max-width:992px){
 
-.dashboard{
-
-flex-direction:column;
-
-}
-
-.dashboard-content{
-
-margin-left:0;
-
-}
-
 .stats-grid{
 
 grid-template-columns:repeat(2,1fr);
@@ -269,6 +257,12 @@ flex-direction:column;
 }
 
 @media (max-width:768px){
+
+.dashboard{
+
+flex-direction:column;
+
+}
 
 .dashboard-body{
 

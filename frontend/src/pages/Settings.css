@@ -6,6 +6,7 @@
 
 .settings-content {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -107,6 +108,10 @@ body.dark .save-btn:hover {
 }
 
 @media (max-width: 768px) {
+  .settings-page {
+    flex-direction: column;
+  }
+
   .settings-body {
     padding: 15px;
   }

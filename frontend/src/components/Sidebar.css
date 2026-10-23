@@ -24,6 +24,8 @@
     position:sticky;
     top:0;
 
+    flex:0 0 270px;
+
     transition:.3s;
 
 }
@@ -325,6 +327,7 @@ body.dark .logout-btn{
 .sidebar{
 
 width:90px;
+flex-basis:90px;
 
 padding:20px 10px;
 
@@ -386,12 +389,92 @@ margin:0;
 
 .sidebar{
 
-position:fixed;
+    width:100%;
+    min-height:0;
+    flex-basis:auto;
+    position:sticky;
+    z-index:999;
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) auto;
+    grid-template-areas:
+        "logo bottom"
+        "menu menu";
+    align-items:center;
+    gap:8px 12px;
+    padding:10px 14px;
 
-left:0;
+}
 
-z-index:999;
+.logo{
+    grid-area:logo;
+    justify-content:flex-start;
+    gap:10px;
+    margin:0;
+}
 
+.logo-icon{
+    width:40px;
+    height:40px;
+    font-size:22px;
+}
+
+.logo h2{
+    display:block;
+    font-size:17px;
+}
+
+.logo span{
+    display:none;
+}
+
+.admin-badge{
+    display:none;
+}
+
+.menu{
+    grid-area:menu;
+    display:flex;
+    gap:4px;
+    min-width:0;
+    overflow-x:auto;
+    scrollbar-width:none;
+}
+
+.menu::-webkit-scrollbar{
+    display:none;
+}
+
+.menu li{
+    flex:0 0 auto;
+    justify-content:center;
+    gap:8px;
+    padding:10px 12px;
+    margin:0;
+    font-size:13px;
+    white-space:nowrap;
+}
+
+.menu li span{
+    display:inline;
+}
+
+.menu li:hover{
+    transform:none;
+}
+
+.sidebar-bottom{
+    grid-area:bottom;
+    border:0;
+    padding:0;
+}
+
+.sidebar-bottom .profile{
+    display:none;
+}
+
+.logout-btn{
+    width:auto;
+    padding:10px;
 }
 
 }
